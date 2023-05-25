@@ -1,0 +1,8 @@
+class Player {
+
+
+  def troughBullet()={
+
+  }
+
+}
