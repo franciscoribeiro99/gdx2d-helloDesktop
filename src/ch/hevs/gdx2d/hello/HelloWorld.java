@@ -55,7 +55,7 @@ public class HelloWorld extends PortableApplication {
 	 *
 	 * @return the current normalized time
 	 */
-	private float computePercentage() {
+	private float computePercentage() {()
 		if (direction == 1){
 			currentTime += Gdx.graphics.getDeltaTime();
 			if (currentTime > ANIMATION_LENGTH) {
