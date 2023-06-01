@@ -20,7 +20,8 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
 
   override def collision(theOtherObject: AbstractPhysicsObject, energy: Float): Unit = {
     Logger.log(name + " collided " + theOtherObject.name + " with energy " + energy)
-    if(theOtherObject.name=="ground")
-      //Set bouncing -1
+    if (theOtherObject.name == "ground") {
+      setBodyLinearVelocity(getBodyLinearVelocity.x,-(getBodyLinearVelocity.y))
+        }
   }
 }
