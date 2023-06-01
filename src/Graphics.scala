@@ -11,7 +11,7 @@ import com.badlogic.gdx.physics.box2d.World
 import java.awt.Toolkit
 import scala.collection.mutable.ArrayBuffer
 
-class Graphics extends PortableApplication(Toolkit.getDefaultToolkit().getScreenSize().getWidth.toInt, Toolkit.getDefaultToolkit().getScreenSize().getHeight.toInt) {
+class Graphics extends PortableApplication(2000,1300) {
   val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
 
   val world: World = PhysicsWorld.getInstance()
