@@ -30,10 +30,13 @@ class Graphics extends PortableApplication(Toolkit.getDefaultToolkit().getScreen
     g.drawFPS()
     g.drawSchoolLogo()
 
+
     for (b <- balls) {
       b.draw(g)
       b.enableCollisionListener()
+
     }
+
 
 
 

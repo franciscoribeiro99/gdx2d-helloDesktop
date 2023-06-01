@@ -1,9 +1,7 @@
-class Bullet {
+import com.badlogic.gdx.math.Vector2
 
-  trait bulletTrait {
-    def fire(): Unit = {
+class Bullet(name: String, var position: Vector2, var radius: Int) {
 
-    }
-  }
+
 
 }
