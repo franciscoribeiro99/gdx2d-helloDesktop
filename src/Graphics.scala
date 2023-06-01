@@ -4,20 +4,19 @@ import ch.hevs.gdx2d.desktop.PortableApplication
 import ch.hevs.gdx2d.desktop.physics.DebugRenderer
 import ch.hevs.gdx2d.lib.GdxGraphics
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld
-import com.badlogic.gdx.{Gdx, Input}
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.{Gdx, Input}
 
-import java.awt.Toolkit
 import scala.collection.mutable.ArrayBuffer
 
-class Graphics extends PortableApplication(2000,1300) {
+class Graphics extends PortableApplication(1920,1080) {
   val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
 
   val world: World = PhysicsWorld.getInstance()
   var dbg: DebugRenderer = null
-  val SPRITE_WIDTH = 256
-  val SPRITE_HEIGHT = 256
+  val SPRITE_WIDTH = 128
+  val SPRITE_HEIGHT = 128
   val FRAME_TIME = 0.55
   var dt: Float = 0
   var currentFrame = 0
