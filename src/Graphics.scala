@@ -16,8 +16,8 @@ class Graphics extends PortableApplication(Toolkit.getDefaultToolkit().getScreen
 
   val world: World = PhysicsWorld.getInstance()
   var dbg: DebugRenderer = null
-  val SPRITE_WIDTH = 64
-  val SPRITE_HEIGHT = 64
+  val SPRITE_WIDTH = 256
+  val SPRITE_HEIGHT = 256
   val FRAME_TIME = 0.55
   var dt: Float = 0
   var currentFrame = 0
@@ -25,7 +25,7 @@ class Graphics extends PortableApplication(Toolkit.getDefaultToolkit().getScreen
   var textureY = 1
   var ss: Spritesheet = null
   var POSX = this.getWindowWidth / 2 - SPRITE_WIDTH / 2
-  var POSY = this.getWindowHeight / 2 - SPRITE_HEIGHT / 2
+  var POSY = 50
 
   override def onInit(): Unit = {
     setTitle("BubbleTrouble")
@@ -76,12 +76,12 @@ class Graphics extends PortableApplication(Toolkit.getDefaultToolkit().getScreen
     keycode match {
       case Input.Keys.DPAD_RIGHT => textureY = 2
         if (POSX < this.getWindowWidth) {
-          POSX += 5
+          POSX += 20
 
         }
       case Input.Keys.DPAD_LEFT => textureY = 1
         if (POSX < this.getWindowWidth) {
-          POSX -= 5
+          POSX -= 20
         }
       case _ => textureY = 0
     }
