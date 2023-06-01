@@ -4,14 +4,16 @@ import ch.hevs.gdx2d.desktop.PortableApplication
 import ch.hevs.gdx2d.desktop.physics.DebugRenderer
 import ch.hevs.gdx2d.lib.GdxGraphics
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld
+import ch.hevs.gdx2d.lib.utils.Logger
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.{Gdx, Input}
 
 import scala.collection.mutable.ArrayBuffer
 
-class Graphics extends PortableApplication(1920,1080) {
+class Graphics extends PortableApplication(1920, 1080) {
   val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
+  val bullets: ArrayBuffer[Bullet] = ArrayBuffer[Bullet]()
 
   val world: World = PhysicsWorld.getInstance()
   var dbg: DebugRenderer = null
@@ -30,7 +32,7 @@ class Graphics extends PortableApplication(1920,1080) {
     setTitle("BubbleTrouble")
     ss = new Spritesheet("data/images/lumberjack_sheet.png", SPRITE_WIDTH, SPRITE_HEIGHT)
     dbg = new DebugRenderer()
-    world.setGravity(new Vector2(0,-1.2f))
+    world.setGravity(new Vector2(0, -1.2f))
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
   }
 
@@ -42,11 +44,25 @@ class Graphics extends PortableApplication(1920,1080) {
     g.drawSchoolLogo()
 
 
-
     for (b <- balls) {
       b.draw(g)
       b.enableCollisionListener()
 
+    }
+
+
+    for (bullet <- bullets) {
+
+      if (bullet.updateLine()) {
+
+        // Draw the bullet
+        g.drawLine(bullet.line.start.x, bullet.line.start.y, bullet.line.end.x, bullet.line.end.y)
+        g.drawLine(bullet.line.end.x, bullet.line.end.y, bullet.line.end.x - 10, bullet.line.end.y - 10)
+        g.drawLine(bullet.line.end.x, bullet.line.end.y, bullet.line.end.x + 10, bullet.line.end.y - 10)
+      }
+      else {
+     // bullets.remove(bullets.indexOf(bullet))
+      }
     }
 
     dt += Gdx.graphics.getDeltaTime()
@@ -74,6 +90,12 @@ class Graphics extends PortableApplication(1920,1080) {
     super.onKeyDown(keycode)
 
     keycode match {
+
+      case Input.Keys.SPACE =>
+        val newBullet = new Bullet("a bullet", MyPoint2D(POSX, POSY))
+        bullets += newBullet
+        Logger.log("New bullet created")
+
       case Input.Keys.DPAD_RIGHT => textureY = 2
         if (POSX < this.getWindowWidth) {
           POSX += 20
