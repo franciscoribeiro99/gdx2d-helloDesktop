@@ -42,6 +42,7 @@ class Graphics extends PortableApplication(1920,1080) {
     g.drawSchoolLogo()
 
 
+
     for (b <- balls) {
       b.draw(g)
       b.enableCollisionListener()
