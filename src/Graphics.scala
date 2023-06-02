@@ -50,20 +50,26 @@ class Graphics extends PortableApplication(1920, 1080) {
 
     }
 
+    // Create an ArrayBuffer to store bullets that need to be removed
+    val bulletsToRemove: ArrayBuffer[Bullet] = ArrayBuffer()
 
     for (bullet <- bullets) {
 
       if (bullet.updateLine()) {
-
         // Draw the bullet
         g.drawLine(bullet.line.start.x, bullet.line.start.y, bullet.line.end.x, bullet.line.end.y)
+        //draw the pointer
         g.drawLine(bullet.line.end.x, bullet.line.end.y, bullet.line.end.x - 10, bullet.line.end.y - 10)
         g.drawLine(bullet.line.end.x, bullet.line.end.y, bullet.line.end.x + 10, bullet.line.end.y - 10)
       }
       else {
-     // bullets.remove(bullets.indexOf(bullet))
+        // Add the bullet to the removal list
+        bulletsToRemove += bullet
       }
     }
+    // Remove the bullets that need to be removed
+    bullets --= bulletsToRemove
+
 
     dt += Gdx.graphics.getDeltaTime()
     if (dt > FRAME_TIME) {
@@ -92,10 +98,11 @@ class Graphics extends PortableApplication(1920, 1080) {
     keycode match {
 
       case Input.Keys.SPACE =>
-        val newBullet = new Bullet("a bullet", MyPoint2D(POSX, POSY))
-        bullets += newBullet
-        Logger.log("New bullet created")
-
+        if (bullets.length == 0) {
+          val newBullet = new Bullet("Bullet", MyPoint2D(POSX, POSY))
+          bullets += newBullet
+          Logger.log("New bullet created")
+        }
       case Input.Keys.DPAD_RIGHT => textureY = 2
         if (POSX < this.getWindowWidth) {
           POSX += 20

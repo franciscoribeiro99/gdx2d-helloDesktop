@@ -22,5 +22,8 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
     if (theOtherObject.name == "ground") {
       setBodyLinearVelocity(getBodyLinearVelocity.x,-(getBodyLinearVelocity.y))
         }
+    if(theOtherObject.name=="Bullet"){
+
+    }
   }
 }
