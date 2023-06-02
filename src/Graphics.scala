@@ -12,11 +12,15 @@ import com.badlogic.gdx.{Gdx, Input}
 import scala.collection.mutable.ArrayBuffer
 
 class Graphics extends PortableApplication(1920, 1080) {
+  //ArrayBuffer of objecets
   val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val bullets: ArrayBuffer[Bullet] = ArrayBuffer[Bullet]()
 
+  //physics
   val world: World = PhysicsWorld.getInstance()
   var dbg: DebugRenderer = null
+
+
   val SPRITE_WIDTH = 128
   val SPRITE_HEIGHT = 128
   val FRAME_TIME = 0.55
@@ -47,7 +51,11 @@ class Graphics extends PortableApplication(1920, 1080) {
     for (b <- balls) {
       b.draw(g)
       b.enableCollisionListener()
-
+      if (b.ballSplit == true) {
+        balls += b.ball1
+        balls += b.ball2
+        PhysicsWorld.getInstance().destroyBody(b.getBody)
+      }
     }
 
     // Create an ArrayBuffer to store bullets that need to be removed
@@ -99,7 +107,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
       case Input.Keys.SPACE =>
         if (bullets.length == 0) {
-          val newBullet = new Bullet("Bullet", MyPoint2D(POSX, POSY))
+          val newBullet = new Bullet("Bullet", MyPoint2D(POSX + (SPRITE_WIDTH / 2), POSY))
           bullets += newBullet
           Logger.log("New bullet created")
         }
