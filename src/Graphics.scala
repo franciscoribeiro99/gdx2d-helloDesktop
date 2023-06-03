@@ -1,11 +1,11 @@
-import ch.hevs.gdx2d.components.bitmaps.Spritesheet
+import ch.hevs.gdx2d.components.bitmaps.{BitmapImage, Spritesheet}
 import ch.hevs.gdx2d.components.physics.utils.PhysicsScreenBoundaries
 import ch.hevs.gdx2d.desktop.PortableApplication
 import ch.hevs.gdx2d.desktop.physics.DebugRenderer
 import ch.hevs.gdx2d.lib.GdxGraphics
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld
 import ch.hevs.gdx2d.lib.utils.Logger
-import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.{Rectangle, Vector2}
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.{Gdx, Input}
 
@@ -31,7 +31,9 @@ class Graphics extends PortableApplication(1920, 1080) {
   var ss: Spritesheet = null
   var POSX = this.getWindowWidth / 2 - SPRITE_WIDTH / 2
   var POSY = 50
+  var start = false
 
+  var playerBounds: Rectangle = new Rectangle(POSX, POSY, SPRITE_WIDTH, SPRITE_HEIGHT)
   override def onInit(): Unit = {
     setTitle("BubbleTrouble")
     ss = new Spritesheet("data/images/lumberjack_sheet.png", SPRITE_WIDTH, SPRITE_HEIGHT)
@@ -42,19 +44,32 @@ class Graphics extends PortableApplication(1920, 1080) {
 
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
+
     g.clear()
-    ss = new Spritesheet("data/images/lumberjack_sheet.png", SPRITE_WIDTH, SPRITE_HEIGHT)
     g.drawFPS()
     g.drawSchoolLogo()
 
-
     for (b <- balls) {
+      val ballPosition: Vector2 = b.getBodyPosition
+      val ballRadius: Float = b.getBodyRadius
+      val ballBounds = new Rectangle(
+        ballPosition.x - ballRadius,
+        ballPosition.y - ballRadius,
+        ballRadius * 2,
+        ballRadius * 2
+      )
+
       b.draw(g)
       b.enableCollisionListener()
       if (b.ballSplit == true) {
         balls += b.ball1
         balls += b.ball2
         PhysicsWorld.getInstance().destroyBody(b.getBody)
+      }
+      if (playerBounds.overlaps(ballBounds)) {
+        println("Collision")
+        start =true
+
       }
     }
 
@@ -78,23 +93,26 @@ class Graphics extends PortableApplication(1920, 1080) {
     // Remove the bullets that need to be removed
     bullets --= bulletsToRemove
 
-
     dt += Gdx.graphics.getDeltaTime()
     if (dt > FRAME_TIME) {
       dt = 0
       currentFrame = (currentFrame + 1) % nFrames
     }
-    g.draw(ss.sprites(textureY)(currentFrame), POSX, POSY)
+   g.draw(ss.sprites(textureY)(currentFrame), POSX, POSY)
     dbg.render(world, g.getCamera.view)
 
     PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
+    if (start == true) {
+      var img = new BitmapImage("data/images/backgroundfin.png")
+      g.drawBackground(img, 10f, 10f)
+    }
   }
 
 
   override def onClick(x: Int, y: Int, button: Int): Unit = {
     super.onClick(x, y, button)
 
-    if (button == 0) {
+    if (button == 0 && start == false) {
       val newBall = new Ball("a ball", new Vector2(x, y), 50)
       balls += newBall
     }
@@ -114,14 +132,27 @@ class Graphics extends PortableApplication(1920, 1080) {
       case Input.Keys.DPAD_RIGHT => textureY = 2
         if (POSX < this.getWindowWidth) {
           POSX += 20
-
+          playerBounds.setPosition(POSX, POSY)
         }
       case Input.Keys.DPAD_LEFT => textureY = 1
         if (POSX < this.getWindowWidth) {
           POSX -= 20
+          playerBounds.setPosition(POSX, POSY)
         }
+      case Input.Keys.ENTER =>
+        resetGame()
       case _ => textureY = 0
     }
+  }
+
+  def resetGame(): Unit = {
+    // Reimposta lo stato del gioco
+    balls.clear()
+    bullets.clear()
+    POSX = this.getWindowWidth / 2 - SPRITE_WIDTH / 2
+    POSY = 50
+    onInit()
+    start = false
   }
 
 }

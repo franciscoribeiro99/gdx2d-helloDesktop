@@ -1,3 +1,4 @@
+import ch.hevs.gdx2d.components.bitmaps.Spritesheet
 import ch.hevs.gdx2d.components.physics.primitives.PhysicsCircle
 import ch.hevs.gdx2d.lib.GdxGraphics
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject
@@ -7,12 +8,10 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 
 class Ball(name: String, var position: Vector2, var radius: Int) extends PhysicsCircle(name, position, radius) with DrawableObject {
-
+  var lastCollision : Float=0.5f
   var ballSplit = false
   var ball1: Ball = _
   var ball2: Ball = _
-
-
   override def draw(gdxGraphics: GdxGraphics): Unit = {
     var position = getBodyPosition
     var radius: Float = getBodyRadius
@@ -41,5 +40,8 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
 
       }
     }
+
+    lastCollision = 1.0f
   }
+
 }
