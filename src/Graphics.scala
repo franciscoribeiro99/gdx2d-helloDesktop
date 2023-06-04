@@ -34,6 +34,7 @@ class Graphics extends PortableApplication(1920, 1080) {
   var start = false
 
   var playerBounds: Rectangle = new Rectangle(POSX, POSY, SPRITE_WIDTH, SPRITE_HEIGHT)
+  var ballBounds : Rectangle = null
   override def onInit(): Unit = {
     setTitle("BubbleTrouble")
     ss = new Spritesheet("data/images/lumberjack_sheet.png", SPRITE_WIDTH, SPRITE_HEIGHT)
@@ -52,7 +53,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     for (b <- balls) {
       val ballPosition: Vector2 = b.getBodyPosition
       val ballRadius: Float = b.getBodyRadius
-      val ballBounds = new Rectangle(
+      ballBounds = new Rectangle(
         ballPosition.x - ballRadius,
         ballPosition.y - ballRadius,
         ballRadius * 2,
@@ -77,7 +78,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     val bulletsToRemove: ArrayBuffer[Bullet] = ArrayBuffer()
 
     for (bullet <- bullets) {
-
+      var bulletBounds : Rectangle = new Rectangle(bullet.line.start.x,bullet.line.start.y, bullet.line.end.x, bullet.line.end.y)
       if (bullet.updateLine()) {
         // Draw the bullet
         g.drawLine(bullet.line.start.x, bullet.line.start.y, bullet.line.end.x, bullet.line.end.y)
@@ -88,6 +89,9 @@ class Graphics extends PortableApplication(1920, 1080) {
       else {
         // Add the bullet to the removal list
         bulletsToRemove += bullet
+      }
+      if(bulletBounds.overlaps(ballBounds)){
+        println("s")
       }
     }
     // Remove the bullets that need to be removed
