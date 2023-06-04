@@ -107,7 +107,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
     PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
     if (start == true) {
-      var img = new BitmapImage("data/images/backgroundfin.png")
+      var img = new BitmapImage("data/images/backgroundfin.jpg")
       g.drawBackground(img, 10f, 10f)
     }
   }
