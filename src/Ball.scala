@@ -4,13 +4,22 @@ import ch.hevs.gdx2d.lib.interfaces.DrawableObject
 import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject
 import ch.hevs.gdx2d.lib.utils.Logger
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.{Rectangle, Vector2}
 
 class Ball(name: String, var position: Vector2, var radius: Int) extends PhysicsCircle(name, position, radius) with DrawableObject {
-  var lastCollision : Float=0.5f
+  var lastCollision: Float = 0.5f
   var ballSplit = false
   var ball1: Ball = _
   var ball2: Ball = _
+  var ballBounds: Rectangle = null
+  ballBounds = new Rectangle(
+    position.x - radius,
+    position.y - radius,
+    radius * 2,
+    radius * 2
+  )
+
+
   override def draw(gdxGraphics: GdxGraphics): Unit = {
     var position = getBodyPosition
     var radius: Float = getBodyRadius
@@ -27,15 +36,17 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
       setBodyLinearVelocity(getBodyLinearVelocity.x, -(getBodyLinearVelocity.y))
     }
 
+
   }
 
-  def checkCollisionWithBullet(bullet: Bullet): Unit = {
-    val bulletPosition = new Vector2(bullet.position.x, bullet.position.y)
-    val distance = bulletPosition.dst(getBodyPosition)
-    val minDistance = getBodyRadius + 1 // Ajoutez une marge pour tenir compte des erreurs de précision
-    return distance <= minDistance
+  def checkCollisionWithBullet(bullet: Bullet): Boolean = {
+    var bulletBounds: Rectangle = new Rectangle(bullet.line.start.x, bullet.line.start.y, bullet.line.end.x, bullet.line.end.y)
+    return ballBounds.overlaps(bulletBounds)
+  }
 
-    lastCollision = 1.0f
+
+  def checkCollisioWithPlayer(player: Player): Boolean = {
+    return ballBounds.overlaps(player.playerBounds)
   }
 
 }
