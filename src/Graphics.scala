@@ -24,23 +24,25 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   //physics
   val world: World = PhysicsWorld.getInstance()
+  world.setGravity(new Vector2(0, -1.2f))
   var dbg: DebugRenderer = null
   var start = false
   var player = new Player
 
   def initializeGameState(): Unit = {
     // Initialize game state components
+
     for (ball <- balls) {
+      world.destroyBody(ball.getBody)
       ball.destroy()
     }
+    new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
+    dbg = new DebugRenderer()
     balls.clear()
     ballsToAdd.clear()
     ballsToRemove.clear()
     bullets.clear()
     bulletsToRemove.clear()
-    dbg = new DebugRenderer()
-    world.setGravity(new Vector2(0, -1.2f))
-    new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
   }
 
   override def onInit(): Unit = {
@@ -54,7 +56,6 @@ class Graphics extends PortableApplication(1920, 1080) {
     g.drawFPS()
     g.drawSchoolLogo()
     player.draw(g)
-
     for (b <- balls) {
       b.draw(g)
       b.enableCollisionListener()
@@ -64,7 +65,7 @@ class Graphics extends PortableApplication(1920, 1080) {
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
           val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
-          ball1.setBodyLinearVelocity(-b.getBodyLinearVelocity.x, -b.getBodyLinearVelocity.y)
+
           val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
           ballsToAdd += ball1
           ballsToAdd += ball2
@@ -75,7 +76,6 @@ class Graphics extends PortableApplication(1920, 1080) {
     }
     balls --= ballsToRemove
     balls ++= ballsToAdd
-
 
     for (bullet <- bullets) {
       if (bullet.updateLine() == false)
@@ -100,7 +100,7 @@ class Graphics extends PortableApplication(1920, 1080) {
   override def onClick(x: Int, y: Int, button: Int): Unit = {
     super.onClick(x, y, button)
     if (button == 0 && start == false) {
-      val newBall = new Ball("a ball", new Vector2(x, y), 50)
+      val newBall = new Ball(s"Ball ${System.currentTimeMillis()}", new Vector2(x, y), 50)
       balls += newBall
     }
   }
@@ -137,7 +137,6 @@ class Graphics extends PortableApplication(1920, 1080) {
   def resetGame(): Unit = {
     // Reimposta lo stato del gioco
     player.POSX = this.getWindowWidth / 2 - player.SPRITE_WIDTH / 2
-    player.POSY = 0
     initializeGameState()
     start = false
   }
