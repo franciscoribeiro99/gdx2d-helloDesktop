@@ -19,6 +19,8 @@ class Graphics extends PortableApplication(1920, 1080) {
   //ArrayBuffer to remove objects
   val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer()
   val ballsToRemove: ArrayBuffer[Ball] = ArrayBuffer()
+  // Create an ArrayBuffer to store bullets that need to be removed
+  val bulletsToRemove: ArrayBuffer[Bullet] = ArrayBuffer()
 
   //physics
   val world: World = PhysicsWorld.getInstance()
@@ -28,10 +30,14 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def initializeGameState(): Unit = {
     // Initialize game state components
+    for (ball <- balls) {
+      ball.destroy()
+    }
     balls.clear()
     ballsToAdd.clear()
     ballsToRemove.clear()
     bullets.clear()
+    bulletsToRemove.clear()
     dbg = new DebugRenderer()
     world.setGravity(new Vector2(0, -1.2f))
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
@@ -48,10 +54,6 @@ class Graphics extends PortableApplication(1920, 1080) {
     g.drawFPS()
     g.drawSchoolLogo()
     player.draw(g)
-
-
-    // Create an ArrayBuffer to store bullets that need to be removed
-    val bulletsToRemove: ArrayBuffer[Bullet] = ArrayBuffer()
 
     for (b <- balls) {
       b.draw(g)
@@ -134,7 +136,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def resetGame(): Unit = {
     // Reimposta lo stato del gioco
-       player.POSX = this.getWindowWidth / 2 - player.SPRITE_WIDTH / 2
+    player.POSX = this.getWindowWidth / 2 - player.SPRITE_WIDTH / 2
     player.POSY = 0
     initializeGameState()
     start = false
