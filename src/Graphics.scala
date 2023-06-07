@@ -63,9 +63,9 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
-          var ball1 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
-          ball1.setBodyLinearVelocity(b.getBodyLinearVelocity.x, -b.getBodyLinearVelocity.y)
-          var ball2 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
+          val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
+          ball1.setBodyLinearVelocity(-b.getBodyLinearVelocity.x, -b.getBodyLinearVelocity.y)
+          val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
           ballsToAdd += ball1
           ballsToAdd += ball2
           ballsToRemove += b
