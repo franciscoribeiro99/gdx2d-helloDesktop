@@ -31,8 +31,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def initializeGameState(): Unit = {
     // Initialize game state components
-
-    for (ball<- balls){
+    for (ball <- balls) {
       destroyBall(ball)
     }
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
@@ -56,7 +55,6 @@ class Graphics extends PortableApplication(1920, 1080) {
     g.drawFPS()
     g.drawSchoolLogo()
     player.draw(g)
-
     for (b <- balls) {
       b.draw(g)
       b.enableCollisionListener()
@@ -68,7 +66,7 @@ class Graphics extends PortableApplication(1920, 1080) {
           val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
           val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
 
-          // Calculate velocities for the new balls
+          // Calcu late velocities for the new balls
           val angle1 = b.getBodyAngle + 60
           val angle2 = b.getBodyAngle - 60
 
@@ -78,7 +76,6 @@ class Graphics extends PortableApplication(1920, 1080) {
           ball1.setBodyLinearVelocity(velocity1)
           ball2.setBodyLinearVelocity(velocity2)
 
-          b.destroy()
           ballsToAdd += ball1
           ballsToAdd += ball2
           ballsToRemove += b
@@ -87,8 +84,11 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
     }
 
-    balls --= ballsToRemove
-    balls ++= ballsToAdd
+    if (!ballsToRemove.isEmpty)
+      balls --= ballsToRemove
+
+    if(!ballsToAdd.isEmpty)
+      balls ++= ballsToAdd
 
     for (bullet <- bullets) {
       if (!bullet.updateLine()) {
@@ -98,17 +98,24 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
     }
 
-    // Remove the bullets that need to be removed
-    bullets --= bulletsToRemove
+    for (ball <- ballsToRemove)
+      ball.destroy()
+
+    if (!bulletsToRemove.isEmpty)
+      bullets --= bulletsToRemove
+
+
+
 
     //clear list to add and remove
     ballsToRemove.clear()
     ballsToAdd.clear()
     bulletsToRemove.clear()
-    print("remove")
+
 
     dbg.render(world, g.getCamera.view)
     PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
+
 
     if (start) {
       val img = new BitmapImage("data/images/backgroundfin.jpg")

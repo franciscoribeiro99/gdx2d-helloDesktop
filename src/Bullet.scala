@@ -12,7 +12,7 @@ class Bullet(name: String, var position: MyPoint2D)extends DrawableObject{
   def updateLine(): Boolean = {
     if (line.end.y < 1080) {
       line = Line(position, MyPoint2D(position.x, line.end.y + 8))
-      bulletBounds= new Rectangle(line.start.x, line.start.y, line.end.x, line.end.y)
+      bulletBounds= new Rectangle(line.start.x, line.start.y, 3, line.end.y)
        true
     } else {
       false
