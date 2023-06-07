@@ -44,6 +44,8 @@ class Graphics extends PortableApplication(1920, 1080) {
     start = false
   }
 
+  //TODO: Check why our game crashes when balls are being created
+
   override def onInit(): Unit = {
     setTitle("BubbleTrouble")
     initializeGameState()
@@ -63,10 +65,12 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
+          b.destroy()
+
           val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
           val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
 
-          // Calcu late velocities for the new balls
+          // Calcul late velocities for the new balls
           val angle1 = b.getBodyAngle + 60
           val angle2 = b.getBodyAngle - 60
 
@@ -81,13 +85,15 @@ class Graphics extends PortableApplication(1920, 1080) {
           ballsToRemove += b
           bulletsToRemove += bullet
         }
+        else if (bullet.updateLine()==false)
+          bulletsToRemove += bullet
       }
     }
 
     if (!ballsToRemove.isEmpty)
       balls --= ballsToRemove
 
-    if(!ballsToAdd.isEmpty)
+    if (!ballsToAdd.isEmpty)
       balls ++= ballsToAdd
 
     for (bullet <- bullets) {
@@ -98,14 +104,8 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
     }
 
-    for (ball <- ballsToRemove)
-      ball.destroy()
-
     if (!bulletsToRemove.isEmpty)
       bullets --= bulletsToRemove
-
-
-
 
     //clear list to add and remove
     ballsToRemove.clear()
@@ -113,7 +113,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     bulletsToRemove.clear()
 
 
-    dbg.render(world, g.getCamera.view)
+    dbg.render(world, g.getCamera.combined)
     PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
 
 

@@ -10,6 +10,7 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
   var ballBounds: Circle = null
   ballBounds = new Circle(position, radius)
   println("new ball")
+  var shouldBeDestroyed : Boolean = false
 
   override def draw(gdxGraphics: GdxGraphics): Unit = {
     var position = getBodyPosition
@@ -19,7 +20,7 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
     radius match {
       case _ => color = Color.RED
     }
-    gdxGraphics.drawFilledCircle(position.x, position.y, radius, color)
+  //  gdxGraphics.drawFilledCircle(position.x, position.y, radius, color)
   }
 
   override def collision(theOtherObject: AbstractPhysicsObject, energy: Float): Unit = {
@@ -33,7 +34,8 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
 
   def checkCollisionWithBullet(bullet: Bullet): Boolean = {
     println("collision with bullet")
-    return Intersector.overlaps(ballBounds, bullet.bulletBounds)
+    shouldBeDestroyed = Intersector.overlaps(ballBounds, bullet.bulletBounds)
+    shouldBeDestroyed
   }
 
 
