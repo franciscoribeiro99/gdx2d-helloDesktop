@@ -105,7 +105,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     ballsToRemove.clear()
     ballsToAdd.clear()
     bulletsToRemove.clear()
-
+    print("remove")
 
     dbg.render(world, g.getCamera.view)
     PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
