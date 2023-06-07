@@ -51,7 +51,7 @@ class Graphics extends PortableApplication(1920, 1080) {
       b.draw(g)
       b.enableCollisionListener()
       if (b.checkCollisioWithPlayer(player)) {
-        start = false
+        start = true
       }
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
