@@ -12,10 +12,10 @@ class Player extends DrawableObject {
   var currentFrame = 0
   val nFrames = 4
   var textureY = 1
-  var POSX = SPRITE_WIDTH / 2
-  var POSY =0
+  var POSX = 1920 / 2 - SPRITE_WIDTH / 2
+  var POSY = 0
   var playerBounds: Rectangle = new Rectangle(POSX, POSY, SPRITE_WIDTH, SPRITE_HEIGHT)
-  var ss:Spritesheet=null
+  var ss: Spritesheet = null
 
   override def draw(gdxGraphics: GdxGraphics): Unit = {
     playerBounds = new Rectangle(POSX, POSY, SPRITE_WIDTH, SPRITE_HEIGHT)

@@ -16,6 +16,10 @@ class Graphics extends PortableApplication(1920, 1080) {
   val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val bullets: ArrayBuffer[Bullet] = ArrayBuffer[Bullet]()
 
+  //ArrayBuffer to remove objects
+  val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer()
+  val ballsToRemove: ArrayBuffer[Ball] = ArrayBuffer()
+
   //physics
   val world: World = PhysicsWorld.getInstance()
   var dbg: DebugRenderer = null
@@ -24,6 +28,10 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def initializeGameState(): Unit = {
     // Initialize game state components
+    balls.clear()
+    ballsToAdd.clear()
+    ballsToRemove.clear()
+    bullets.clear()
     dbg = new DebugRenderer()
     world.setGravity(new Vector2(0, -1.2f))
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
@@ -41,8 +49,6 @@ class Graphics extends PortableApplication(1920, 1080) {
     g.drawSchoolLogo()
     player.draw(g)
 
-    val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer()
-    val ballsToRemove: ArrayBuffer[Ball] = ArrayBuffer()
 
     // Create an ArrayBuffer to store bullets that need to be removed
     val bulletsToRemove: ArrayBuffer[Bullet] = ArrayBuffer()
@@ -55,9 +61,9 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
-          var ball1=new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
-          ball1.setBodyLinearVelocity(b.getBodyLinearVelocity.x,-b.getBodyLinearVelocity.y)
-          var ball2= new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
+          var ball1 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
+          ball1.setBodyLinearVelocity(b.getBodyLinearVelocity.x, -b.getBodyLinearVelocity.y)
+          var ball2 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
           ballsToAdd += ball1
           ballsToAdd += ball2
           ballsToRemove += b
@@ -128,10 +134,8 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def resetGame(): Unit = {
     // Reimposta lo stato del gioco
-    balls.clear()
-    bullets.clear()
-    player.POSX = this.getWindowWidth / 2 - player.SPRITE_WIDTH / 2
-    player.POSY = 50
+       player.POSX = this.getWindowWidth / 2 - player.SPRITE_WIDTH / 2
+    player.POSY = 0
     initializeGameState()
     start = false
   }
@@ -143,4 +147,3 @@ object test {
     new Graphics
   }
 }
-"s"

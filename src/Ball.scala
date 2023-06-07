@@ -4,26 +4,16 @@ import ch.hevs.gdx2d.lib.interfaces.DrawableObject
 import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject
 import ch.hevs.gdx2d.lib.utils.Logger
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.{Rectangle, Vector2}
+import com.badlogic.gdx.math.{Circle, Intersector, Rectangle, Vector2}
 
 class Ball(name: String, var position: Vector2, var radius: Int) extends PhysicsCircle(name, position, radius) with DrawableObject {
-  var ballBounds: Rectangle = null
-  ballBounds = new Rectangle(
-    position.x - radius,
-    position.y - radius,
-    radius * 2,
-    radius * 2
-  )
+  var ballBounds: Circle = null
+  ballBounds = new Circle(position, radius)
 
   override def draw(gdxGraphics: GdxGraphics): Unit = {
     var position = getBodyPosition
     var radius: Float = getBodyRadius
-    ballBounds = new Rectangle(
-      position.x - radius,
-      position.y - radius,
-      radius * 2,
-      radius * 2
-    )
+    ballBounds = new Circle(position, radius)
     var color: Color = Color.WHITE
     radius match {
       case _ => color = Color.RED
@@ -36,18 +26,19 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
     if (theOtherObject.name == "ground") {
       setBodyLinearVelocity(getBodyLinearVelocity.x, -(getBodyLinearVelocity.y))
     }
-
-
+    else
+      Logger.log(name + " collided with " + theOtherObject.name)
   }
 
   def checkCollisionWithBullet(bullet: Bullet): Boolean = {
-    var bulletBounds: Rectangle = new Rectangle(bullet.line.start.x, bullet.line.start.y, bullet.line.end.x, bullet.line.end.y)
-    return ballBounds.overlaps(bulletBounds)
+    println("collision with bullet")
+    return Intersector.overlaps(ballBounds, bullet.bulletBounds)
   }
 
 
   def checkCollisioWithPlayer(player: Player): Boolean = {
-    return ballBounds.overlaps(player.playerBounds)
+    //println("collision with player")
+    return Intersector.overlaps(ballBounds, player.playerBounds)
   }
 
 }
