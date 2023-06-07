@@ -35,7 +35,6 @@ class Graphics extends PortableApplication(1920, 1080) {
     player.ss = new Spritesheet("data/images/lumberjack_sheet.png", player.SPRITE_WIDTH, player.SPRITE_HEIGHT)
   }
 
-
   override def onGraphicRender(g: GdxGraphics): Unit = {
     g.clear()
     g.drawFPS()
@@ -44,25 +43,23 @@ class Graphics extends PortableApplication(1920, 1080) {
 
     val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer()
     val ballsToRemove: ArrayBuffer[Ball] = ArrayBuffer()
+
     // Create an ArrayBuffer to store bullets that need to be removed
     val bulletsToRemove: ArrayBuffer[Bullet] = ArrayBuffer()
 
-    player.draw(g)
-
-
     for (b <- balls) {
-      val ballPosition: Vector2 = b.getBodyPosition
-      val ballRadius: Float = b.getBodyRadius
       b.draw(g)
       b.enableCollisionListener()
       if (b.checkCollisioWithPlayer(player)) {
         start = false
-
       }
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
-          ballsToAdd += new Ball("Ball", b.position, b.radius / 2)
-          ballsToAdd += new Ball("Ball", new Vector2(b.position.x + 20, b.position.y), b.radius / 2)
+          var ball1=new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
+          ball1.setBodyLinearVelocity(b.getBodyLinearVelocity.x,-b.getBodyLinearVelocity.y)
+          var ball2= new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
+          ballsToAdd += ball1
+          ballsToAdd += ball2
           ballsToRemove += b
           bulletsToRemove += bullet
         }
@@ -79,12 +76,12 @@ class Graphics extends PortableApplication(1920, 1080) {
         bullet.draw(g)
     }
 
-
     // Remove the bullets that need to be removed
     bullets --= bulletsToRemove
-    dbg.render(world, g.getCamera.view)
 
+    dbg.render(world, g.getCamera.view)
     PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
+
     if (start == true) {
       var img = new BitmapImage("data/images/backgroundfin.jpg")
       g.drawBackground(img, 10f, 10f)
@@ -94,7 +91,6 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   override def onClick(x: Int, y: Int, button: Int): Unit = {
     super.onClick(x, y, button)
-
     if (button == 0 && start == false) {
       val newBall = new Ball("a ball", new Vector2(x, y), 50)
       balls += newBall

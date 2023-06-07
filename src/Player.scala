@@ -13,11 +13,12 @@ class Player extends DrawableObject {
   val nFrames = 4
   var textureY = 1
   var POSX = SPRITE_WIDTH / 2
-  var POSY = 50
+  var POSY =0
   var playerBounds: Rectangle = new Rectangle(POSX, POSY, SPRITE_WIDTH, SPRITE_HEIGHT)
   var ss:Spritesheet=null
 
   override def draw(gdxGraphics: GdxGraphics): Unit = {
+    playerBounds = new Rectangle(POSX, POSY, SPRITE_WIDTH, SPRITE_HEIGHT)
     gdxGraphics.draw(ss.sprites(textureY)(currentFrame), POSX, POSY)
     dt += Gdx.graphics.getDeltaTime
     if (dt > FRAME_TIME) {

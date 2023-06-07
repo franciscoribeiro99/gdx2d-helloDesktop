@@ -7,10 +7,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.{Rectangle, Vector2}
 
 class Ball(name: String, var position: Vector2, var radius: Int) extends PhysicsCircle(name, position, radius) with DrawableObject {
-  var lastCollision: Float = 0.5f
-  var ballSplit = false
-  var ball1: Ball = _
-  var ball2: Ball = _
   var ballBounds: Rectangle = null
   ballBounds = new Rectangle(
     position.x - radius,
@@ -19,10 +15,15 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
     radius * 2
   )
 
-
   override def draw(gdxGraphics: GdxGraphics): Unit = {
     var position = getBodyPosition
     var radius: Float = getBodyRadius
+    ballBounds = new Rectangle(
+      position.x - radius,
+      position.y - radius,
+      radius * 2,
+      radius * 2
+    )
     var color: Color = Color.WHITE
     radius match {
       case _ => color = Color.RED
