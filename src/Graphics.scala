@@ -1,3 +1,4 @@
+
 import ch.hevs.gdx2d.components.bitmaps.{BitmapImage, Spritesheet}
 import ch.hevs.gdx2d.components.physics.utils.PhysicsScreenBoundaries
 import ch.hevs.gdx2d.desktop.PortableApplication
@@ -5,8 +6,11 @@ import ch.hevs.gdx2d.desktop.physics.DebugRenderer
 import ch.hevs.gdx2d.lib.GdxGraphics
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld
 import ch.hevs.gdx2d.lib.utils.Logger
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.{MathUtils, Vector2}
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.{Gdx, Input}
 
 import scala.collection.mutable.ArrayBuffer
@@ -15,6 +19,8 @@ class Graphics extends PortableApplication(1920, 1080) {
   // ArrayBuffer of objects
   val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val bullets: ArrayBuffer[Bullet] = ArrayBuffer[Bullet]()
+  //time
+  var elapsedTime: Float = 30
 
   // ArrayBuffer to remove objects
   val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
@@ -34,6 +40,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     for (ball <- balls) {
       destroyBall(ball)
     }
+    elapsedTime = 30
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
     dbg = new DebugRenderer()
     balls.clear()
@@ -50,6 +57,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     setTitle("BubbleTrouble")
     initializeGameState()
     player.ss = new Spritesheet("data/images/lumberjack_sheet.png", player.SPRITE_WIDTH, player.SPRITE_HEIGHT)
+
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
@@ -57,6 +65,8 @@ class Graphics extends PortableApplication(1920, 1080) {
     g.drawFPS()
     g.drawSchoolLogo()
     player.draw(g)
+    elapsedTime -= Gdx.graphics.getDeltaTime
+    g.drawString(60, 1050, s"Time: ${elapsedTime.toInt}", Align.right)
     for (b <- balls) {
       b.draw(g)
       b.enableCollisionListener()
@@ -66,6 +76,10 @@ class Graphics extends PortableApplication(1920, 1080) {
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
           b.destroy()
+          if(elapsedTime>20)
+            elapsedTime = 30
+          else
+            elapsedTime= elapsedTime+10
 
           val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
           val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
@@ -116,12 +130,11 @@ class Graphics extends PortableApplication(1920, 1080) {
     dbg.render(world, g.getCamera.combined)
     PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
 
-
-    if (start) {
+    if (start || elapsedTime<=0) {
       val img = new BitmapImage("data/images/backgroundfin.jpg")
       g.drawBackground(img, 10f, 10f)
-      for(b<-balls)
-        b.destroy()
+
+      print("s")
     }
   }
 
@@ -164,6 +177,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def resetGame(): Unit = {
     // Reset the game state
+    start= false
     player.POSX = getWindowWidth / 2 - player.SPRITE_WIDTH / 2
     initializeGameState()
   }
