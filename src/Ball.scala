@@ -10,7 +10,7 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
   var ballBounds: Circle = null
   ballBounds = new Circle(position, radius)
   println("new ball")
-  var shouldBeDestroyed : Boolean = false
+  var shouldBeDestroyed: Boolean = false
 
   override def draw(gdxGraphics: GdxGraphics): Unit = {
     var position = getBodyPosition
@@ -20,11 +20,11 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
     radius match {
       case _ => color = Color.RED
     }
-  //  gdxGraphics.drawFilledCircle(position.x, position.y, radius, color)
+    gdxGraphics.drawFilledCircle(position.x, position.y, radius, color)
   }
 
   override def collision(theOtherObject: AbstractPhysicsObject, energy: Float): Unit = {
-    Logger.log(name + " collided " + theOtherObject.name + " with energy " + energy )
+    Logger.log(name + " collided " + theOtherObject.name + " with energy " + energy)
     if (theOtherObject.name == "ground") {
       setBodyLinearVelocity(getBodyLinearVelocity.x, -(getBodyLinearVelocity.y))
     }

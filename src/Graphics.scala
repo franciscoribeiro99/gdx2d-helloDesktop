@@ -120,6 +120,8 @@ class Graphics extends PortableApplication(1920, 1080) {
     if (start) {
       val img = new BitmapImage("data/images/backgroundfin.jpg")
       g.drawBackground(img, 10f, 10f)
+      for(b<-balls)
+        b.destroy()
     }
   }
 
