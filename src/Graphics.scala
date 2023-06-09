@@ -14,12 +14,17 @@ import com.badlogic.gdx.{Gdx, Input}
 import scala.collection.mutable.ArrayBuffer
 
 class Graphics extends PortableApplication(1920, 1080) {
+  //levelManager
+  var levelManager: Levels = new Levels
+
+  var levelPlaying = false
+
   // ArrayBuffer of objects
   val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val bullets: ArrayBuffer[Bullet] = ArrayBuffer[Bullet]()
   //time
   var elapsedTime: Float = 30
-  var  rightKeyPressed = false
+  var rightKeyPressed = false
   var leftKeyPressed = false
   // ArrayBuffer to remove objects
   val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
@@ -36,19 +41,20 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def initializeGameState(): Unit = {
     // Initialize game state components
-
+    levelManager.levelRst()
     for (ball <- balls) {
       destroyBall(ball)
     }
     elapsedTime = 30
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
     dbg = new DebugRenderer()
-
     balls.clear()
     ballsToAdd.clear()
     ballsToRemove.clear()
     bullets.clear()
     bulletsToRemove.clear()
+    levelManager.levelUp()
+    println(levelManager.level)
     start = false
   }
 
@@ -81,9 +87,17 @@ class Graphics extends PortableApplication(1920, 1080) {
     }
     elapsedTime -= Gdx.graphics.getDeltaTime
     g.drawString(60, 1050, s"Time: ${elapsedTime.toInt}", Align.right)
-    if(balls.isEmpty) {
-      val newBall = new Ball(s"Ball ${System.currentTimeMillis()}", new Vector2(600, 900), 128)
-      balls += newBall
+    if (levelManager.level != 0 && levelPlaying == false) {
+      if (levelManager.balls == 1) {
+        levelPlaying = true
+        val newBall = new Ball("Ball", levelManager.position1, levelManager.size)
+        balls += newBall
+      }
+      else if (levelManager.balls == 2) {
+        levelPlaying = true
+        balls += new Ball("Ball1", levelManager.position1, levelManager.size)
+        balls += new Ball("Ball2", levelManager.position2, levelManager.size)
+      }
     }
     for (b <- balls) {
       b.draw(g)
@@ -216,7 +230,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
 
   override def onKeyDown(keycode: Int): Unit = {
-   super.onKeyDown(keycode)
+    super.onKeyDown(keycode)
 
     keycode match {
       case Input.Keys.SPACE =>
@@ -234,7 +248,7 @@ class Graphics extends PortableApplication(1920, 1080) {
         }
       case Input.Keys.LEFT =>
         player.textureY = 1
-        leftKeyPressed=true
+        leftKeyPressed = true
         if (player.POSX > 0) {
           player.POSX -= 20
           player.playerBounds.setPosition(player.POSX, player.POSY)
