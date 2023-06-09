@@ -19,7 +19,8 @@ class Graphics extends PortableApplication(1920, 1080) {
   val bullets: ArrayBuffer[Bullet] = ArrayBuffer[Bullet]()
   //time
   var elapsedTime: Float = 30
-
+  var  rightKeyPressed = false
+  var leftKeyPressed = false
   // ArrayBuffer to remove objects
   val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val ballsToRemove: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
@@ -35,12 +36,14 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def initializeGameState(): Unit = {
     // Initialize game state components
+
     for (ball <- balls) {
       destroyBall(ball)
     }
     elapsedTime = 30
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
     dbg = new DebugRenderer()
+
     balls.clear()
     ballsToAdd.clear()
     ballsToRemove.clear()
@@ -54,6 +57,7 @@ class Graphics extends PortableApplication(1920, 1080) {
   override def onInit(): Unit = {
     setTitle("BubbleTrouble")
     initializeGameState()
+
     player.ss = new Spritesheet("data/images/lumberjack_sheet.png", player.SPRITE_WIDTH, player.SPRITE_HEIGHT)
 
   }
@@ -63,8 +67,24 @@ class Graphics extends PortableApplication(1920, 1080) {
     g.drawFPS()
     g.drawSchoolLogo()
     player.draw(g)
+
+    if (rightKeyPressed) {
+      if (player.POSX < getWindowWidth - player.SPRITE_WIDTH) {
+        player.POSX += 5
+      }
+    }
+
+    if (leftKeyPressed) {
+      if (player.POSX > 0) {
+        player.POSX -= 5
+      }
+    }
     elapsedTime -= Gdx.graphics.getDeltaTime
     g.drawString(60, 1050, s"Time: ${elapsedTime.toInt}", Align.right)
+    if(balls.isEmpty) {
+      val newBall = new Ball(s"Ball ${System.currentTimeMillis()}", new Vector2(600, 900), 128)
+      balls += newBall
+    }
     for (b <- balls) {
       b.draw(g)
       b.enableCollisionListener()
@@ -148,13 +168,24 @@ class Graphics extends PortableApplication(1920, 1080) {
     super.onClick(x, y, button)
 
     if (button == 0 && !start) {
-      val newBall = new Ball(s"Ball ${System.currentTimeMillis()}", new Vector2(x, y), 128)
-      balls += newBall
+
     }
   }
 
-  override def onKeyDown(keycode: Int): Unit = {
-    super.onKeyDown(keycode)
+  private var keyPressed: Set[Int] = Set()
+
+  // Verifica se un tasto è stato premuto solo una volta
+  private def onlyKeyPressed(keycode: Int): Boolean = {
+    if (!keyPressed.contains(keycode)) {
+      keyPressed += keycode
+      true
+    } else {
+      false
+    }
+  }
+
+  override def onKeyUp(keycode: Int): Unit = {
+    super.onKeyUp(keycode)
 
     keycode match {
       case Input.Keys.SPACE =>
@@ -165,12 +196,14 @@ class Graphics extends PortableApplication(1920, 1080) {
         }
       case Input.Keys.RIGHT =>
         player.textureY = 2
+        rightKeyPressed = false
         if (player.POSX < getWindowWidth - player.SPRITE_WIDTH) {
           player.POSX += 20
           player.playerBounds.setPosition(player.POSX, player.POSY)
         }
       case Input.Keys.LEFT =>
         player.textureY = 1
+        leftKeyPressed = false
         if (player.POSX > 0) {
           player.POSX -= 20
           player.playerBounds.setPosition(player.POSX, player.POSY)
@@ -180,6 +213,39 @@ class Graphics extends PortableApplication(1920, 1080) {
       case _ => player.textureY = 0
     }
   }
+
+
+  override def onKeyDown(keycode: Int): Unit = {
+   super.onKeyDown(keycode)
+
+    keycode match {
+      case Input.Keys.SPACE =>
+        if (bullets.isEmpty) {
+          val newBullet = new Bullet("Bullet", MyPoint2D(player.POSX + (player.SPRITE_WIDTH / 2), player.POSY))
+          bullets += newBullet
+          Logger.log("New bullet created")
+        }
+      case Input.Keys.RIGHT =>
+        player.textureY = 2
+        rightKeyPressed = true
+        if (player.POSX < getWindowWidth - player.SPRITE_WIDTH) {
+          player.POSX += 20
+          player.playerBounds.setPosition(player.POSX, player.POSY)
+        }
+      case Input.Keys.LEFT =>
+        player.textureY = 1
+        leftKeyPressed=true
+        if (player.POSX > 0) {
+          player.POSX -= 20
+          player.playerBounds.setPosition(player.POSX, player.POSY)
+        }
+      case Input.Keys.ENTER =>
+        resetGame()
+      case _ => player.textureY = 0
+    }
+
+  }
+
 
   def resetGame(): Unit = {
     // Reset the game state
