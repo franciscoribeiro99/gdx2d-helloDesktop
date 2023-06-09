@@ -6,8 +6,6 @@ import ch.hevs.gdx2d.desktop.physics.DebugRenderer
 import ch.hevs.gdx2d.lib.GdxGraphics
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld
 import ch.hevs.gdx2d.lib.utils.Logger
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.{MathUtils, Vector2}
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.Align
@@ -75,34 +73,42 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
-          b.destroy()
-          if(elapsedTime>20)
-            elapsedTime = 30
-          else
-            elapsedTime= elapsedTime+10
+          if (b.radius == 16) {
+            b.destroy()
+            ballsToRemove += b
+            bulletsToRemove += bullet
+          }
+          else {
+            b.destroy()
+            if (elapsedTime > 20)
+              elapsedTime = 30
+            else
+              elapsedTime = elapsedTime + 10
 
-          val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
-          val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x, b.ballBounds.y), b.radius / 2)
+            val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x + 10, b.ballBounds.y), b.radius / 2)
+            val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x - 10, b.ballBounds.y), b.radius / 2)
 
-          // Calcul late velocities for the new balls
-          val angle1 = b.getBodyAngle + 60
-          val angle2 = b.getBodyAngle - 60
+            // Calcul late velocities for the new balls
+            val angle1 = b.getBodyAngle + 60
+            val angle2 = b.getBodyAngle + 60
 
-          val velocity1 = new Vector2(MathUtils.cosDeg(angle1), MathUtils.sinDeg(angle1))
-          val velocity2 = new Vector2(MathUtils.cosDeg(angle2), MathUtils.sinDeg(angle2))
+            val velocity1 = new Vector2(MathUtils.cosDeg(angle1), MathUtils.sinDeg(angle1))
+            val velocity2 = new Vector2(MathUtils.cosDeg(angle2), MathUtils.sinDeg(angle2))
 
-          ball1.setBodyLinearVelocity(velocity1)
-          ball2.setBodyLinearVelocity(velocity2)
+            ball1.setBodyLinearVelocity(velocity1)
+            ball2.setBodyLinearVelocity(velocity2)
 
-          ballsToAdd += ball1
-          ballsToAdd += ball2
-          ballsToRemove += b
-          bulletsToRemove += bullet
+            ballsToAdd += ball1
+            ballsToAdd += ball2
+            ballsToRemove += b
+            bulletsToRemove += bullet
+          }
         }
-        else if (bullet.updateLine()==false)
+        else if (bullet.updateLine() == false)
           bulletsToRemove += bullet
       }
     }
+
 
     if (!ballsToRemove.isEmpty)
       balls --= ballsToRemove
@@ -130,7 +136,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     dbg.render(world, g.getCamera.combined)
     PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
 
-    if (start || elapsedTime<=0) {
+    if (start || elapsedTime <= 0) {
       val img = new BitmapImage("data/images/backgroundfin.jpg")
       g.drawBackground(img, 10f, 10f)
 
@@ -142,7 +148,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     super.onClick(x, y, button)
 
     if (button == 0 && !start) {
-      val newBall = new Ball(s"Ball ${System.currentTimeMillis()}", new Vector2(x, y), 50)
+      val newBall = new Ball(s"Ball ${System.currentTimeMillis()}", new Vector2(x, y), 128)
       balls += newBall
     }
   }
@@ -177,7 +183,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def resetGame(): Unit = {
     // Reset the game state
-    start= false
+    start = false
     player.POSX = getWindowWidth / 2 - player.SPRITE_WIDTH / 2
     initializeGameState()
   }
