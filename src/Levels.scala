@@ -35,8 +35,9 @@ class Levels {
   }
 
   def levelRst(): Unit = {
-    var level = 0
-    var balls = 0
-    var size = 0
+    level = 0
+    balls = 0
+    size = 0
   }
+
 }

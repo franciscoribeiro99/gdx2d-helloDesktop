@@ -10,13 +10,11 @@ import com.badlogic.gdx.math.{MathUtils, Vector2}
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.{Gdx, Input}
-
 import scala.collection.mutable.ArrayBuffer
 
 class Graphics extends PortableApplication(1920, 1080) {
   //levelManager
   var levelManager: Levels = new Levels
-
   var levelPlaying = false
 
   // ArrayBuffer of objects
@@ -161,6 +159,10 @@ class Graphics extends PortableApplication(1920, 1080) {
     if (!bulletsToRemove.isEmpty)
       bullets --= bulletsToRemove
 
+    if (balls.isEmpty)
+      levelPlaying = false
+
+
     //clear list to add and remove
     ballsToRemove.clear()
     ballsToAdd.clear()
@@ -173,9 +175,9 @@ class Graphics extends PortableApplication(1920, 1080) {
     if (start || elapsedTime <= 0) {
       val img = new BitmapImage("data/images/backgroundfin.jpg")
       g.drawBackground(img, 10f, 10f)
-
-      print("s")
     }
+    else if (!start && !levelPlaying)
+      levelManager.levelUp()
   }
 
   override def onClick(x: Int, y: Int, button: Int): Unit = {
