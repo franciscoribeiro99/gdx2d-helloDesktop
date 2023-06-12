@@ -81,6 +81,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     g.clear()
     g.drawFPS()
     g.drawSchoolLogo()
+    println("s")
 
 
     player.draw(g)
