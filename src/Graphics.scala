@@ -48,9 +48,6 @@ class Graphics extends PortableApplication(1920, 1080) {
   var dbg: DebugRenderer = null
   var start = false
 
-def default():Unit={
-
-}
   def initializeGameState(): Unit = {
     // Initialize game state components
     player.POSX = getWindowWidth / 2 - player.SPRITE_WIDTH / 2
@@ -101,6 +98,7 @@ def default():Unit={
     }
     elapsedTime -= Gdx.graphics.getDeltaTime
     g.drawString(60, 1050, s"Time: ${elapsedTime.toInt}", Align.right)
+    g.drawString(1890,1050, s"Level: ${levelManager.level}/6", Align.right)
     if (levelManager.level != 0 && levelPlaying == false) {
       if (levelManager.balls == 1) {
         levelPlaying = true
