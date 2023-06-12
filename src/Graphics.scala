@@ -16,6 +16,18 @@ class Graphics extends PortableApplication(1920, 1080) {
   //levelManager
   var levelManager: Levels = new Levels
   var levelPlaying = false
+  var player = new Player(960)
+
+  //player chooser
+  var players = 1
+
+  if (players == 2) {
+    var player2 = new Player(960)
+    var player = new Player(1440)
+  }
+  else {
+    player = new Player(960)
+  }
 
   // ArrayBuffer of objects
   val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
@@ -35,7 +47,7 @@ class Graphics extends PortableApplication(1920, 1080) {
   world.setGravity(new Vector2(0, -1.2f)) // Update the gravity value as per your needs
   var dbg: DebugRenderer = null
   var start = false
-  var player = new Player
+
 
   def initializeGameState(): Unit = {
     // Initialize game state components
@@ -70,6 +82,8 @@ class Graphics extends PortableApplication(1920, 1080) {
     g.clear()
     g.drawFPS()
     g.drawSchoolLogo()
+
+
     player.draw(g)
 
     if (rightKeyPressed) {
@@ -121,8 +135,8 @@ class Graphics extends PortableApplication(1920, 1080) {
             val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x - 10, b.ballBounds.y), b.radius / 2)
 
             // Calcul late velocities for the new balls
-            val angle1 = b.getBodyAngle + 60
-            val angle2 = b.getBodyAngle + 60
+            val angle1 = b.getBodyAngle + 45
+            val angle2 = b.getBodyAngle +105
 
             val velocity1 = new Vector2(MathUtils.cosDeg(angle1), MathUtils.sinDeg(angle1))
             val velocity2 = new Vector2(MathUtils.cosDeg(angle2), MathUtils.sinDeg(angle2))

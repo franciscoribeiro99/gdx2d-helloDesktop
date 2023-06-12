@@ -28,6 +28,12 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
     if (theOtherObject.name == "ground") {
       setBodyLinearVelocity(getBodyLinearVelocity.x, -(getBodyLinearVelocity.y))
     }
+    else if (theOtherObject.name == "leftwall") {
+      setBodyLinearVelocity(-getBodyLinearVelocity.x, (getBodyLinearVelocity.y))
+    }
+    else  if (theOtherObject.name == "rightwall") {
+      setBodyLinearVelocity(-getBodyLinearVelocity.x, (getBodyLinearVelocity.y))
+    }
     else
       Logger.log(name + " collided with " + theOtherObject.name)
   }
