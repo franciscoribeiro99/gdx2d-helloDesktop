@@ -31,6 +31,9 @@ class Levels {
       case 6 =>
         balls = 2
         size = 128
+      case _ =>
+        size = 0
+        balls = 0
     }
   }
 

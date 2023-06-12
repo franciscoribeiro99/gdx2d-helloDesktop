@@ -90,13 +90,13 @@ def default():Unit={
 
     if (rightKeyPressed) {
       if (player.POSX < getWindowWidth - player.SPRITE_WIDTH) {
-        player.POSX += 5
+        player.POSX += 10
       }
     }
 
     if (leftKeyPressed) {
       if (player.POSX > 0) {
-        player.POSX -= 5
+        player.POSX -= 10
       }
     }
     elapsedTime -= Gdx.graphics.getDeltaTime
@@ -196,6 +196,10 @@ def default():Unit={
       levelManager.levelUp()
       player.POSX = getWindowWidth / 2 - player.SPRITE_WIDTH / 2
       elapsedTime =30
+    }
+    if (levelManager.level == 7) {
+      val img = new BitmapImage("data/images/youwin.png")
+      g.drawBackground(img, 10f, 10f)
     }
   }
 
