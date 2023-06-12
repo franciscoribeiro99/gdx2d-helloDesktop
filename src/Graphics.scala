@@ -48,9 +48,9 @@ class Graphics extends PortableApplication(1920, 1080) {
   var dbg: DebugRenderer = null
   var start = false
 
-
   def initializeGameState(): Unit = {
     // Initialize game state components
+    player.POSX = getWindowWidth / 2 - player.SPRITE_WIDTH / 2
     levelManager.levelRst()
     for (ball <- balls) {
       destroyBall(ball)
@@ -63,7 +63,6 @@ class Graphics extends PortableApplication(1920, 1080) {
     ballsToRemove.clear()
     bullets.clear()
     bulletsToRemove.clear()
-    levelManager.levelUp()
     println(levelManager.level)
     start = false
   }
@@ -88,17 +87,18 @@ class Graphics extends PortableApplication(1920, 1080) {
 
     if (rightKeyPressed) {
       if (player.POSX < getWindowWidth - player.SPRITE_WIDTH) {
-        player.POSX += 5
+        player.POSX += 10
       }
     }
 
     if (leftKeyPressed) {
       if (player.POSX > 0) {
-        player.POSX -= 5
+        player.POSX -= 10
       }
     }
     elapsedTime -= Gdx.graphics.getDeltaTime
     g.drawString(60, 1050, s"Time: ${elapsedTime.toInt}", Align.right)
+    g.drawString(1890,1050, s"Level: ${levelManager.level}/6", Align.right)
     if (levelManager.level != 0 && levelPlaying == false) {
       if (levelManager.balls == 1) {
         levelPlaying = true
@@ -190,29 +190,18 @@ class Graphics extends PortableApplication(1920, 1080) {
       val img = new BitmapImage("data/images/backgroundfin.jpg")
       g.drawBackground(img, 10f, 10f)
     }
-    else if (!start && !levelPlaying)
+    else if (!start && !levelPlaying) {
       levelManager.levelUp()
-  }
-
-  override def onClick(x: Int, y: Int, button: Int): Unit = {
-    super.onClick(x, y, button)
-
-    if (button == 0 && !start) {
-
+      player.POSX = getWindowWidth / 2 - player.SPRITE_WIDTH / 2
+      elapsedTime =30
+    }
+    if (levelManager.level == 7) {
+      val img = new BitmapImage("data/images/youwin.png")
+      g.drawBackground(img, 10f, 10f)
     }
   }
 
-  private var keyPressed: Set[Int] = Set()
 
-  // Verifica se un tasto è stato premuto solo una volta
-  private def onlyKeyPressed(keycode: Int): Boolean = {
-    if (!keyPressed.contains(keycode)) {
-      keyPressed += keycode
-      true
-    } else {
-      false
-    }
-  }
 
   override def onKeyUp(keycode: Int): Unit = {
     super.onKeyUp(keycode)
@@ -239,7 +228,7 @@ class Graphics extends PortableApplication(1920, 1080) {
           player.playerBounds.setPosition(player.POSX, player.POSY)
         }
       case Input.Keys.ENTER =>
-        resetGame()
+       initializeGameState()
       case _ => player.textureY = 0
     }
   }
@@ -270,18 +259,10 @@ class Graphics extends PortableApplication(1920, 1080) {
           player.playerBounds.setPosition(player.POSX, player.POSY)
         }
       case Input.Keys.ENTER =>
-        resetGame()
+       initializeGameState()
       case _ => player.textureY = 0
     }
 
-  }
-
-
-  def resetGame(): Unit = {
-    // Reset the game state
-    start = false
-    player.POSX = getWindowWidth / 2 - player.SPRITE_WIDTH / 2
-    initializeGameState()
   }
 
   def destroyBall(ball: Ball): Unit = {
