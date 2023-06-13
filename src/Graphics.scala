@@ -33,7 +33,8 @@ class Graphics extends PortableApplication(1920, 1080) {
   val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val bullets: ArrayBuffer[Bullet] = ArrayBuffer[Bullet]()
   //time
-  var elapsedTime: Float = 30
+  var time = new Time
+  //var elapsedTime: Float = 30
   var rightKeyPressed = false
   var leftKeyPressed = false
   // ArrayBuffer to remove objects
@@ -55,7 +56,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     for (ball <- balls) {
       destroyBall(ball)
     }
-    elapsedTime = 30
+    time.elapsedTime = 30
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
     dbg = new DebugRenderer()
     balls.clear()
@@ -97,8 +98,9 @@ class Graphics extends PortableApplication(1920, 1080) {
         player.POSX -= 10
       }
     }
-    elapsedTime -= Gdx.graphics.getDeltaTime
-    g.drawString(60, 1050, s"Time: ${elapsedTime.toInt}", Align.right)
+
+    time.elapsedTime -= Gdx.graphics.getDeltaTime
+    g.drawString(60, 1050, s"Time: ${time.elapsedTime.toInt}", Align.right)
     g.drawString(1890,1050, s"Level: ${levelManager.level}/6", Align.right)
     if (levelManager.level != 0 && levelPlaying == false) {
       if (levelManager.balls == 1) {
@@ -120,6 +122,7 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
+          time.check(time.elapsedTime)
           if (b.radius == 16) {
             b.destroy()
             ballsToRemove += b
@@ -127,10 +130,6 @@ class Graphics extends PortableApplication(1920, 1080) {
           }
           else {
             b.destroy()
-            if (elapsedTime > 20)
-              elapsedTime = 30
-            else
-              elapsedTime = elapsedTime + 10
 
             val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x + 10, b.ballBounds.y), b.radius / 2)
             val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x - 10, b.ballBounds.y), b.radius / 2)
@@ -187,14 +186,14 @@ class Graphics extends PortableApplication(1920, 1080) {
     dbg.render(world, g.getCamera.combined)
     PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
 
-    if (start || elapsedTime <= 0) {
+    if (start || time.elapsedTime <= 0) {
       val img = new BitmapImage("data/images/backgroundfin.jpg")
       g.drawBackground(img, 10f, 10f)
     }
     else if (!start && !levelPlaying) {
       levelManager.levelUp()
       player.POSX = getWindowWidth / 2 - player.SPRITE_WIDTH / 2
-      elapsedTime =30
+      time.elapsedTime =30
     }
     if (levelManager.level == 7) {
       val img = new BitmapImage("data/images/youwin.png")
@@ -218,17 +217,16 @@ class Graphics extends PortableApplication(1920, 1080) {
         player.textureY = 2
         rightKeyPressed = false
         if (player.POSX < getWindowWidth - player.SPRITE_WIDTH) {
-          player.POSX += 20
           player.playerBounds.setPosition(player.POSX, player.POSY)
         }
       case Input.Keys.LEFT =>
         player.textureY = 1
         leftKeyPressed = false
         if (player.POSX > 0) {
-          player.POSX -= 20
           player.playerBounds.setPosition(player.POSX, player.POSY)
         }
       case Input.Keys.ENTER =>
+        if(start)
        initializeGameState()
       case _ => player.textureY = 0
     }
@@ -249,17 +247,16 @@ class Graphics extends PortableApplication(1920, 1080) {
         player.textureY = 2
         rightKeyPressed = true
         if (player.POSX < getWindowWidth - player.SPRITE_WIDTH) {
-          player.POSX += 20
           player.playerBounds.setPosition(player.POSX, player.POSY)
         }
       case Input.Keys.LEFT =>
         player.textureY = 1
         leftKeyPressed = true
         if (player.POSX > 0) {
-          player.POSX -= 20
           player.playerBounds.setPosition(player.POSX, player.POSY)
         }
       case Input.Keys.ENTER =>
+        if(start)
        initializeGameState()
       case _ => player.textureY = 0
     }

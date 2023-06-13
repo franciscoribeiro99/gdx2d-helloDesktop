@@ -1,10 +1,11 @@
 import ch.hevs.gdx2d.components.bitmaps.Spritesheet
+import ch.hevs.gdx2d.desktop.PortableApplication
 import ch.hevs.gdx2d.lib.GdxGraphics
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Rectangle
 
-class Player(var POSX: Int) extends DrawableObject {
+class Player(var POSX: Int) extends DrawableObject  {
   val SPRITE_WIDTH = 128
   val SPRITE_HEIGHT = 128
   val FRAME_TIME = 0.58
@@ -26,6 +27,7 @@ class Player(var POSX: Int) extends DrawableObject {
       currentFrame = (currentFrame + 1) % nFrames
     }
   }
+
 
 
 }

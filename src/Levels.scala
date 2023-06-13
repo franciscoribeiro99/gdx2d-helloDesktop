@@ -1,12 +1,16 @@
+import ch.hevs.gdx2d.lib.GdxGraphics
+import ch.hevs.gdx2d.lib.interfaces.DrawableObject
 import com.badlogic.gdx.math.Vector2
 
-class Levels {
+class Levels extends DrawableObject{
   var level = 0
   var balls = 0
   var size = 0
 
   var position1 = new Vector2(300, 800)
   var position2 = new Vector2(1620, 800)
+
+  override def draw(gdxGraphics: GdxGraphics): Unit = ???
 
 
   def levelUp(): Unit = {
@@ -42,5 +46,6 @@ class Levels {
     balls = 0
     size = 0
   }
+
 
 }
