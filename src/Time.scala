@@ -4,7 +4,7 @@ class Time {
 var elapsedTime : Float =30
 
 
-  def check(t : Float):Unit={
+  def addTime(t : Float):Unit={
     var timevalue =t
     if (t > 20)
       timevalue= 30
@@ -13,4 +13,6 @@ var elapsedTime : Float =30
 
     elapsedTime =timevalue
   }
+
+
 }

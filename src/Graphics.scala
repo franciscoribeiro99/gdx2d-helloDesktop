@@ -122,14 +122,16 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
       for (bullet <- bullets) {
         if (b.checkCollisionWithBullet(bullet)) {
-          time.check(time.elapsedTime)
+          time.addTime(time.elapsedTime)
+          b.destroy()
           if (b.radius == 16) {
-            b.destroy()
+            val bonus = new BonusTime(player.POSX,player.POSY)
+            bonus.onGraphicRender(g)
             ballsToRemove += b
             bulletsToRemove += bullet
           }
           else {
-            b.destroy()
+
 
             val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x + 10, b.ballBounds.y), b.radius / 2)
             val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x - 10, b.ballBounds.y), b.radius / 2)

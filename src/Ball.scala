@@ -4,14 +4,15 @@ import ch.hevs.gdx2d.lib.interfaces.DrawableObject
 import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject
 import ch.hevs.gdx2d.lib.utils.Logger
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.{Circle, Intersector, Vector2}
+import com.badlogic.gdx.math.{Circle, Intersector, MathUtils, Vector2}
+
+import scala.collection.mutable.ArrayBuffer
 
 class Ball(name: String, var position: Vector2, var radius: Int) extends PhysicsCircle(name, position, radius) with DrawableObject {
   var ballBounds: Circle = null
   ballBounds = new Circle(position, radius)
   println("new ball")
   var shouldBeDestroyed: Boolean = false
-
   override def draw(gdxGraphics: GdxGraphics): Unit = {
     var position = getBodyPosition
     var radius: Float = getBodyRadius
@@ -49,6 +50,7 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
     //println("collision with player")
     return Intersector.overlaps(ballBounds, player.playerBounds)
   }
+
 
 
 }
