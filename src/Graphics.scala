@@ -37,6 +37,7 @@ class Graphics extends PortableApplication(1920, 1080) {
   var nextLevel: ClickableButton = _
   var player1: ClickableButton = _
   var player2: ClickableButton = _
+  var restart: ClickableButton = _
 
   //time
   var time = new Time
@@ -86,10 +87,11 @@ class Graphics extends PortableApplication(1920, 1080) {
 
 
     //allButtons
-    exitButton = new ClickableButton("Exit", new BitmapImage("data/images/buttons/Exit.png"), getWindowWidth / 2, 3 * (getWindowHeight / 4))
+    restart = new ClickableButton("Restart", new BitmapImage("data/images/buttons/Restart.png"), getWindowWidth / 2, 3 * (getWindowHeight / 4))
+    exitButton = new ClickableButton("Exit", new BitmapImage("data/images/buttons/Exit.png"), getWindowWidth / 2, (getWindowHeight / 4))
     nextLevel = new ClickableButton("NextLevel", new BitmapImage("data/images/buttons/NextLevel.png"), getWindowWidth / 2, getWindowHeight / 2)
-    player1 = new ClickableButton("Player1", new BitmapImage("data/images/buttons/Player1.png"), getWindowWidth / 2, 2 * (getWindowHeight / 4))
-    player2 = new ClickableButton("Player2", new BitmapImage("data/images/buttons/Player2.png"), getWindowWidth / 2, getWindowHeight / 4)
+    player1 = new ClickableButton("Player1", new BitmapImage("data/images/buttons/Player1.png"), getWindowWidth / 2, 3 * (getWindowHeight / 4))
+    player2 = new ClickableButton("Player2", new BitmapImage("data/images/buttons/Player2.png"), getWindowWidth / 2, 2 * (getWindowHeight / 4))
 
     //background
     initialBackground = new BitmapImage("data/images/brick-wall-background-texture.jpg")
@@ -100,10 +102,23 @@ class Graphics extends PortableApplication(1920, 1080) {
     gameState match {
       case 3 => //lost
         time.elapsedTime = 30
+        val img = new BitmapImage("data/images/backgroundfin.jpg")
+        g.drawBackground(img, 0, 0)
+        exitButton.draw(g)
+        restart.draw(g)
         for (ball <- balls) {
           destroyBall(ball)
         }
-      case 0 =>
+      case 4 =>
+        for (ball <- balls) {
+          destroyBall(ball)
+        }
+        balls.clear()
+        playerList.clear()
+        g.drawBackground(initialBackground, 0, 0)
+        exitButton.draw(g)
+        nextLevel.draw(g)
+      case 0 => //lobby
         g.clear()
         g.drawBackground(initialBackground, 0, 0)
         buttonsList.addOne(player1)
@@ -112,24 +127,25 @@ class Graphics extends PortableApplication(1920, 1080) {
         for (b <- buttonsList) {
           b.draw(g)
         }
-      case 1 =>
+      case 1 => //playing
+        buttonsList.clear()
         g.clear()
         g.drawFPS()
         g.drawSchoolLogo()
+
         if (players == 2) {
-          playerList+=new Player(960)
+          playerList += new Player(960)
           playerList(0).ss = new Spritesheet("data/images/lumberjack_sheet.png", playerList(0).SPRITE_WIDTH, playerList(0).SPRITE_HEIGHT)
           playerList(0).draw(g)
-          playerList+=new Player(1440)
+          playerList += new Player(1440)
           playerList(1).ss == new Spritesheet("data/images/lumberjack_sheet.png", playerList(1).SPRITE_WIDTH, playerList(1).SPRITE_HEIGHT)
           playerList(1).draw(g)
         }
         else {
-          playerList+=new Player(960)
+          playerList += new Player(960)
           playerList(0).ss = new Spritesheet("data/images/lumberjack_sheet.png", playerList(0).SPRITE_WIDTH, playerList(0).SPRITE_HEIGHT)
           playerList(0).draw(g)
         }
-        playerList(0).POSX = getWindowWidth / 2 - playerList(0).SPRITE_WIDTH / 2
 
         if (rightKeyPressed) {
           if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
@@ -145,8 +161,8 @@ class Graphics extends PortableApplication(1920, 1080) {
         g.drawString(60, 1050, s"Time: ${time.elapsedTime.toInt}", Align.right)
         g.drawString(1890, 1050, s"Level: ${levelManager.level}/6", Align.right)
         if (levelManager.level != 0 && levelPlaying == false) {
+          levelPlaying = true
           if (levelManager.balls == 1) {
-            levelPlaying = true
             val newBall = new Ball("Ball", levelManager.position1, levelManager.size)
             balls += newBall
           }
@@ -231,13 +247,10 @@ class Graphics extends PortableApplication(1920, 1080) {
         PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime)
 
         if (start || time.elapsedTime <= 0) {
-          val img = new BitmapImage("data/images/backgroundfin.jpg")
-          g.drawBackground(img, 10f, 10f)
+          gameState = 3
         }
-        else if (!start && !levelPlaying) {
-          levelManager.levelUp()
-          playerList(0).POSX = getWindowWidth / 2 - playerList(0).SPRITE_WIDTH / 2
-          time.elapsedTime = 30
+        else if (gameState == 1 && levelPlaying == false) {
+          gameState = 4
         }
         if (levelManager.level == 7) {
           val img = new BitmapImage("data/images/youwin.png")
@@ -251,49 +264,61 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   override def onKeyUp(keycode: Int): Unit = {
     super.onKeyUp(keycode)
-
-    keycode match {
-      case Input.Keys.SPACE =>
-        if (bullets.isEmpty) {
-          val newBullet = new Bullet("Bullet", MyPoint2D(playerList(0).POSX + (playerList(0).SPRITE_WIDTH / 2), playerList(0).POSY))
-          bullets += newBullet
-          Logger.log("New bullet created")
-        }
-      case Input.Keys.RIGHT =>
-        playerList(0).textureY = 2
-        rightKeyPressed = false
-        if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
-          playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
-        }
-      case Input.Keys.LEFT =>
-        playerList(0).textureY = 1
-        leftKeyPressed = false
-        if (playerList(0).POSX > 0) {
-          playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
-        }
-      case Input.Keys.ENTER =>
-        if (start)
-          initializeGameState()
-      case _ => playerList(0).textureY = 0
+    if (levelPlaying) {
+      keycode match {
+        case Input.Keys.SPACE =>
+          if (bullets.isEmpty) {
+            val newBullet = new Bullet("Bullet", MyPoint2D(playerList(0).POSX + (playerList(0).SPRITE_WIDTH / 2), playerList(0).POSY))
+            bullets += newBullet
+            Logger.log("New bullet created")
+          }
+        case Input.Keys.RIGHT =>
+          playerList(0).textureY = 2
+          rightKeyPressed = false
+          if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
+            playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
+          }
+        case Input.Keys.LEFT =>
+          playerList(0).textureY = 1
+          leftKeyPressed = false
+          if (playerList(0).POSX > 0) {
+            playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
+          }
+        case Input.Keys.ENTER =>
+          if (start)
+            initializeGameState()
+        case _ => playerList(0).textureY = 0
+      }
     }
   }
 
   override def onClick(x: Int, y: Int, button: Int): Unit = {
     super.onClick(x, y, button)
     println(s"clicked on $x $y $button")
-    if (player1.click(x, y)) {
+    if (player1.click(x, y)&&gameState==0) {
+      levelManager.levelUp()
       players = 1
       gameState = 1
+      buttonsList.clear()
     }
-    else if (player2.click(x, y)) {
+    else if (player2.click(x, y) && gameState == 0) {
+      levelManager.levelUp()
       players = 2
       gameState = 1
+      buttonsList.clear()
+    }
+    else if (restart.click(x, y)) {
+      start = !start
+      gameState = 1
+      buttonsList.clear()
     }
     else if (exitButton.click(x, y)) {
       System.exit(-1)
     }
     else if (nextLevel.click(x, y)) {
       levelManager.levelUp()
+      gameState=1
+      buttonsList.clear()
     }
 
 
@@ -302,30 +327,31 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   override def onKeyDown(keycode: Int): Unit = {
     super.onKeyDown(keycode)
-
-    keycode match {
-      case Input.Keys.SPACE =>
-        if (bullets.isEmpty) {
-          val newBullet = new Bullet("Bullet", MyPoint2D(playerList(0).POSX + (playerList(0).SPRITE_WIDTH / 2), playerList(0).POSY))
-          bullets += newBullet
-          Logger.log("New bullet created")
-        }
-      case Input.Keys.RIGHT =>
-        playerList(0).textureY = 2
-        rightKeyPressed = true
-        if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
-          playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
-        }
-      case Input.Keys.LEFT =>
-        playerList(0).textureY = 1
-        leftKeyPressed = true
-        if (playerList(0).POSX > 0) {
-          playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
-        }
-      case Input.Keys.ENTER =>
-        if (start)
-          initializeGameState()
-      case _ => playerList(0).textureY = 0
+    if (gameState == 1) {
+      keycode match {
+        case Input.Keys.SPACE =>
+          if (bullets.isEmpty) {
+            val newBullet = new Bullet("Bullet", MyPoint2D(playerList(0).POSX + (playerList(0).SPRITE_WIDTH / 2), playerList(0).POSY))
+            bullets += newBullet
+            Logger.log("New bullet created")
+          }
+        case Input.Keys.RIGHT =>
+          playerList(0).textureY = 2
+          rightKeyPressed = true
+          if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
+            playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
+          }
+        case Input.Keys.LEFT =>
+          playerList(0).textureY = 1
+          leftKeyPressed = true
+          if (playerList(0).POSX > 0) {
+            playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
+          }
+        case Input.Keys.ENTER =>
+          if (start)
+            initializeGameState()
+        case _ => playerList(0).textureY = 0
+      }
     }
 
   }
