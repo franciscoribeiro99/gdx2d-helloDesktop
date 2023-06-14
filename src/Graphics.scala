@@ -199,17 +199,20 @@ class Graphics extends PortableApplication(1920, 1080) {
           if (b.checkCollisioWithPlayer(playerList(0)))
             start = true
 
-          if (b.checkCollisioWithPlayer(playerList(1)))
-            start = true
+          if (players == 2) {
+            if (b.checkCollisioWithPlayer(playerList(1)))
+              start = true
+          }
           for (roap <- roapList) {
             if (roap != null) {
               if (b.checkCollisionWithBullet(roap)) {
                 time.addTime(time.elapsedTime)
+                roapList(roapList.indexOf(roap)) = null
                 b.destroy()
                 if (b.radius == 16) {
+                  ballsToRemove += b
                   val bonus = new BonusTime(playerList(0).POSX, playerList(0).POSY)
                   bonus.onGraphicRender(g)
-                  roapList(roapList.indexOf(roap)) = null
                 }
                 else {
                   val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x + 10, b.ballBounds.y), b.radius / 2)
