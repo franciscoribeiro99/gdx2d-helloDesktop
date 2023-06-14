@@ -4,9 +4,7 @@ import ch.hevs.gdx2d.lib.interfaces.DrawableObject
 import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject
 import ch.hevs.gdx2d.lib.utils.Logger
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.{Circle, Intersector, MathUtils, Vector2}
-
-import scala.collection.mutable.ArrayBuffer
+import com.badlogic.gdx.math.{Circle, Intersector, Vector2}
 
 class Ball(name: String, var position: Vector2, var radius: Int) extends PhysicsCircle(name, position, radius) with DrawableObject {
   var ballBounds: Circle = null
@@ -39,7 +37,7 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
       Logger.log(name + " collided with " + theOtherObject.name)
   }
 
-  def checkCollisionWithBullet(bullet: Bullet): Boolean = {
+  def checkCollisionWithBullet(bullet: Roap): Boolean = {
     println("collision with bullet")
     shouldBeDestroyed = Intersector.overlaps(ballBounds, bullet.bulletBounds)
     shouldBeDestroyed

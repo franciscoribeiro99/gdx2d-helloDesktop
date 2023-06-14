@@ -6,7 +6,7 @@ case class MyPoint2D(x: Float, y: Float)
 
 case class Line(start: MyPoint2D, end: MyPoint2D)
 
-class Bullet(name: String, var position: MyPoint2D)extends DrawableObject{
+class Roap(name: String, var position: MyPoint2D)extends DrawableObject{
   var line = Line(position, MyPoint2D(position.x, position.y))
   var bulletBounds: Rectangle = new Rectangle(line.start.x, line.start.y, line.end.x, line.end.y)
   def updateLine(): Boolean = {

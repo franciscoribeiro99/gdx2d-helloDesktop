@@ -20,14 +20,14 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   //gameState 0-home menu 1-playing 2-next level 3-lost 4-finish
   var gameState = 0
-
+  var whereplaying = false
 
   var players = 0
 
 
   // ArrayBuffer of objects
-  val balls: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
-  val bullets: ArrayBuffer[Bullet] = ArrayBuffer[Bullet]()
+  val ballList: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
+  val roapList: Array[Roap] = new Array[Roap](2)
   var buttonsList = new ArrayBuffer[ClickableButton]()
   var playerList = new ArrayBuffer[Player]()
 
@@ -47,8 +47,7 @@ class Graphics extends PortableApplication(1920, 1080) {
   // ArrayBuffer to remove objects
   val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val ballsToRemove: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
-  // Create an ArrayBuffer to store bullets that need to be removed
-  val bulletsToRemove: ArrayBuffer[Bullet] = ArrayBuffer[Bullet]()
+
 
   // Physics
   val world: World = PhysicsWorld.getInstance()
@@ -69,21 +68,30 @@ class Graphics extends PortableApplication(1920, 1080) {
 
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
     dbg = new DebugRenderer()
-    balls.clear()
+    ballList.clear()
     ballsToAdd.clear()
     ballsToRemove.clear()
-    bullets.clear()
-    bulletsToRemove.clear()
+    roapList(0) = null
+    roapList(1) = null
     println(levelManager.level)
     start = false
   }
 
+  def createPlayers(): Unit = {
+    if (players == 2) {
+      playerList += new Player(960)
+      playerList += new Player(1440)
+    }
+    else {
+      playerList += new Player(960)
+
+    }
+
+  }
 
   override def onInit(): Unit = {
     setTitle("BubbleTrouble")
     initializeGameState()
-
-
 
 
     //allButtons
@@ -106,24 +114,27 @@ class Graphics extends PortableApplication(1920, 1080) {
         g.drawBackground(img, 0, 0)
         exitButton.draw(g)
         restart.draw(g)
-        for (ball <- balls) {
+        whereplaying = false
+        for (ball <- ballList) {
           destroyBall(ball)
         }
       case 4 =>
-        for (ball <- balls) {
+        for (ball <- ballList) {
           destroyBall(ball)
         }
-        balls.clear()
+        ballList.clear()
         playerList.clear()
         g.drawBackground(initialBackground, 0, 0)
         exitButton.draw(g)
         nextLevel.draw(g)
+        whereplaying = false
       case 0 => //lobby
         g.clear()
         g.drawBackground(initialBackground, 0, 0)
         buttonsList.addOne(player1)
         buttonsList.addOne(player2)
         buttonsList.addOne(exitButton)
+        whereplaying = false
         for (b <- buttonsList) {
           b.draw(g)
         }
@@ -133,114 +144,119 @@ class Graphics extends PortableApplication(1920, 1080) {
         g.drawFPS()
         g.drawSchoolLogo()
 
+        if (!whereplaying) {
+          createPlayers()
+          whereplaying = true
+        }
+
         if (players == 2) {
-          playerList += new Player(960)
           playerList(0).ss = new Spritesheet("data/images/lumberjack_sheet.png", playerList(0).SPRITE_WIDTH, playerList(0).SPRITE_HEIGHT)
           playerList(0).draw(g)
-          playerList += new Player(1440)
-          playerList(1).ss == new Spritesheet("data/images/lumberjack_sheet.png", playerList(1).SPRITE_WIDTH, playerList(1).SPRITE_HEIGHT)
+          playerList(1).ss = new Spritesheet("data/images/lumberjack_sheet1.png", playerList(1).SPRITE_WIDTH, playerList(1).SPRITE_HEIGHT)
           playerList(1).draw(g)
         }
         else {
-          playerList += new Player(960)
           playerList(0).ss = new Spritesheet("data/images/lumberjack_sheet.png", playerList(0).SPRITE_WIDTH, playerList(0).SPRITE_HEIGHT)
           playerList(0).draw(g)
         }
 
+        //moves player
         if (rightKeyPressed) {
           if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
-            playerList(0).POSX += 10
+            playerList(0).POSX += 7
           }
         }
-        if (leftKeyPressed) {
+        else if (leftKeyPressed) {
           if (playerList(0).POSX > 0) {
-            playerList(0).POSX -= 10
+            playerList(0).POSX -= 7
           }
         }
+
+        // calculate time
         time.elapsedTime -= Gdx.graphics.getDeltaTime
+        //draw time
         g.drawString(60, 1050, s"Time: ${time.elapsedTime.toInt}", Align.right)
         g.drawString(1890, 1050, s"Level: ${levelManager.level}/6", Align.right)
+
+        //check balls
         if (levelManager.level != 0 && levelPlaying == false) {
           levelPlaying = true
           if (levelManager.balls == 1) {
             val newBall = new Ball("Ball", levelManager.position1, levelManager.size)
-            balls += newBall
+            ballList += newBall
           }
           else if (levelManager.balls == 2) {
             levelPlaying = true
-            balls += new Ball("Ball1", levelManager.position1, levelManager.size)
-            balls += new Ball("Ball2", levelManager.position2, levelManager.size)
+            ballList += new Ball("Ball1", levelManager.position1, levelManager.size)
+            ballList += new Ball("Ball2", levelManager.position2, levelManager.size)
           }
         }
-        for (b <- balls) {
+
+
+        for (b <- ballList) {
           b.draw(g)
           b.enableCollisionListener()
-          if (b.checkCollisioWithPlayer(playerList(0))) {
+          if (b.checkCollisioWithPlayer(playerList(0)))
             start = true
-          }
-          for (bullet <- bullets) {
-            if (b.checkCollisionWithBullet(bullet)) {
-              time.addTime(time.elapsedTime)
-              b.destroy()
-              if (b.radius == 16) {
-                val bonus = new BonusTime(playerList(0).POSX, playerList(0).POSY)
-                bonus.onGraphicRender(g)
-                ballsToRemove += b
-                bulletsToRemove += bullet
+
+          if (b.checkCollisioWithPlayer(playerList(1)))
+            start = true
+          for (roap <- roapList) {
+            if (roap != null) {
+              if (b.checkCollisionWithBullet(roap)) {
+                time.addTime(time.elapsedTime)
+                b.destroy()
+                if (b.radius == 16) {
+                  val bonus = new BonusTime(playerList(0).POSX, playerList(0).POSY)
+                  bonus.onGraphicRender(g)
+                  roapList(roapList.indexOf(roap)) = null
+                }
+                else {
+                  val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x + 10, b.ballBounds.y), b.radius / 2)
+                  val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x - 10, b.ballBounds.y), b.radius / 2)
+
+                  // Calcul late velocities for the new balls
+                  val angle1 = b.getBodyAngle + 45
+                  val angle2 = b.getBodyAngle + 105
+
+                  val velocity1 = new Vector2(MathUtils.cosDeg(angle1), MathUtils.sinDeg(angle1))
+                  val velocity2 = new Vector2(MathUtils.cosDeg(angle2), MathUtils.sinDeg(angle2))
+
+                  ball1.setBodyLinearVelocity(velocity1)
+                  ball2.setBodyLinearVelocity(velocity2)
+
+                  ballsToAdd += ball1
+                  ballsToAdd += ball2
+                  ballsToRemove += b
+
+                }
               }
-              else {
-
-
-                val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x + 10, b.ballBounds.y), b.radius / 2)
-                val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x - 10, b.ballBounds.y), b.radius / 2)
-
-                // Calcul late velocities for the new balls
-                val angle1 = b.getBodyAngle + 45
-                val angle2 = b.getBodyAngle + 105
-
-                val velocity1 = new Vector2(MathUtils.cosDeg(angle1), MathUtils.sinDeg(angle1))
-                val velocity2 = new Vector2(MathUtils.cosDeg(angle2), MathUtils.sinDeg(angle2))
-
-                ball1.setBodyLinearVelocity(velocity1)
-                ball2.setBodyLinearVelocity(velocity2)
-
-                ballsToAdd += ball1
-                ballsToAdd += ball2
-                ballsToRemove += b
-                bulletsToRemove += bullet
-              }
+              else if (roap.updateLine() == false)
+                roapList(roapList.indexOf(roap)) = null
             }
-            else if (bullet.updateLine() == false)
-              bulletsToRemove += bullet
           }
         }
 
 
         if (!ballsToRemove.isEmpty)
-          balls --= ballsToRemove
+          ballList --= ballsToRemove
 
         if (!ballsToAdd.isEmpty)
-          balls ++= ballsToAdd
+          ballList ++= ballsToAdd
 
-        for (bullet <- bullets) {
-          if (!bullet.updateLine()) {
-            bulletsToRemove += bullet
-          } else {
+        for (bullet <- roapList) {
+          if (bullet != null)
             bullet.draw(g)
-          }
         }
 
-        if (!bulletsToRemove.isEmpty)
-          bullets --= bulletsToRemove
 
-        if (balls.isEmpty)
+        if (ballList.isEmpty)
           levelPlaying = false
 
 
         //clear list to add and remove
         ballsToRemove.clear()
         ballsToAdd.clear()
-        bulletsToRemove.clear()
 
 
         dbg.render(world, g.getCamera.combined)
@@ -266,10 +282,9 @@ class Graphics extends PortableApplication(1920, 1080) {
     super.onKeyUp(keycode)
     if (levelPlaying) {
       keycode match {
-        case Input.Keys.SPACE =>
-          if (bullets.isEmpty) {
-            val newBullet = new Bullet("Bullet", MyPoint2D(playerList(0).POSX + (playerList(0).SPRITE_WIDTH / 2), playerList(0).POSY))
-            bullets += newBullet
+        case Input.Keys.UP =>
+          if (roapList(0) == null) {
+            roapList(0) = new Roap("Bullet", MyPoint2D(playerList(0).POSX + (playerList(0).SPRITE_WIDTH / 2), playerList(0).POSY))
             Logger.log("New bullet created")
           }
         case Input.Keys.RIGHT =>
@@ -284,9 +299,31 @@ class Graphics extends PortableApplication(1920, 1080) {
           if (playerList(0).POSX > 0) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
           }
-        case Input.Keys.ENTER =>
-          if (start)
-            initializeGameState()
+        case Input.Keys.A =>
+          if (players == 2) {
+            playerList(1).textureY = 1
+            leftKeyPressed = false
+            if (playerList(1).POSX > 0) {
+              playerList(1).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
+            }
+          }
+        case Input.Keys.S =>
+          if (players == 2) {
+            if (roapList(1) == null) {
+              roapList(1) = new Roap("Bullet", MyPoint2D(playerList(1).POSX + (playerList(1).SPRITE_WIDTH / 2), playerList(1).POSY))
+
+            }
+
+          }
+        case Input.Keys.D =>
+          if (players == 2) {
+            playerList(1).textureY = 2
+            rightKeyPressed = false
+            if (playerList(1).POSX < getWindowWidth - playerList(1).SPRITE_WIDTH) {
+              playerList(0).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
+            }
+          }
+
         case _ => playerList(0).textureY = 0
       }
     }
@@ -295,7 +332,7 @@ class Graphics extends PortableApplication(1920, 1080) {
   override def onClick(x: Int, y: Int, button: Int): Unit = {
     super.onClick(x, y, button)
     println(s"clicked on $x $y $button")
-    if (player1.click(x, y)&&gameState==0) {
+    if (player1.click(x, y) && gameState == 0) {
       levelManager.levelUp()
       players = 1
       gameState = 1
@@ -317,7 +354,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     }
     else if (nextLevel.click(x, y)) {
       levelManager.levelUp()
-      gameState=1
+      gameState = 1
       buttonsList.clear()
     }
 
@@ -329,12 +366,6 @@ class Graphics extends PortableApplication(1920, 1080) {
     super.onKeyDown(keycode)
     if (gameState == 1) {
       keycode match {
-        case Input.Keys.SPACE =>
-          if (bullets.isEmpty) {
-            val newBullet = new Bullet("Bullet", MyPoint2D(playerList(0).POSX + (playerList(0).SPRITE_WIDTH / 2), playerList(0).POSY))
-            bullets += newBullet
-            Logger.log("New bullet created")
-          }
         case Input.Keys.RIGHT =>
           playerList(0).textureY = 2
           rightKeyPressed = true
@@ -347,9 +378,7 @@ class Graphics extends PortableApplication(1920, 1080) {
           if (playerList(0).POSX > 0) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
           }
-        case Input.Keys.ENTER =>
-          if (start)
-            initializeGameState()
+
         case _ => playerList(0).textureY = 0
       }
     }
