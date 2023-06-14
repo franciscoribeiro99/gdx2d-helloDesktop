@@ -23,7 +23,10 @@ class Graphics extends PortableApplication(1920, 1080) {
   var whereplaying = false
 
   var players = 0
-
+ //BONUS
+  var bonus = false
+  var getballx = 0f
+  var getbally = 0f
 
   // ArrayBuffer of objects
   val ballList: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
@@ -210,9 +213,12 @@ class Graphics extends PortableApplication(1920, 1080) {
                 roapList(roapList.indexOf(roap)) = null
                 b.destroy()
                 if (b.radius == 16) {
+                    if (ballList.length > 1)
+                      bonus = true
+                    getballx = b.position.x
+                    getbally = b.position.y
+                    ballsToRemove += b
                   ballsToRemove += b
-                  val bonus = new BonusTime(playerList(0).POSX, playerList(0).POSY)
-                  bonus.onGraphicRender(g)
                 }
                 else {
                   val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x + 10, b.ballBounds.y), b.radius / 2)
@@ -276,8 +282,27 @@ class Graphics extends PortableApplication(1920, 1080) {
           g.drawBackground(img, 10f, 10f)
         }
     }
+    if (bonus) {
+      if (getbally >= 15)
+        getbally = getbally - 2
+      val b1 = new BonusTime(getballx, getbally)
+      if (players == 1) {
+        if (!b1.collision(playerList(0)))
+          b1.draw(g)
+        else {
+          bonus = false
+          time.addTime(time.elapsedTime)
+        }
+      } else if (players == 2) {
+        if (!b1.collision(playerList(0)) || !b1.collision(playerList(0)))
+          b1.draw(g)
+        else {
+          bonus = false
+          time.addTime(time.elapsedTime)
+        }
+      }
 
-
+    }
   }
 
 
