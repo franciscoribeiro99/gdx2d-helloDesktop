@@ -131,6 +131,7 @@ class Graphics extends PortableApplication(1920, 1080) {
       case 3 =>
         val img = new BitmapImage("data/images/backgroundfin.jpg")
         g.drawBackground(img, 0, 0)
+        time.elapsedTime = 30
         exitButton.draw(g)
         restart.draw(g)
         whereplaying = false
@@ -155,13 +156,7 @@ class Graphics extends PortableApplication(1920, 1080) {
         nextLevel.draw(g)
         whereplaying = false
       case 0 => //lobby
-
-        print("taille ")
-        println(levelManager.size)
-        //levelManager.level = 0
-        //levelManager.balls=
-        if (whereplaying == false)
-          time.elapsedTime = 30
+        time.elapsedTime = 30
         g.clear()
         g.drawBackground(initialBackground, 0, 0)
         buttonsList.addOne(player1)
@@ -439,6 +434,7 @@ class Graphics extends PortableApplication(1920, 1080) {
       new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
       dbg = new DebugRenderer()
       levelManager.levelRst()
+
       start = false
       levelPlaying = false
       bonus = false
