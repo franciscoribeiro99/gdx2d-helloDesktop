@@ -45,8 +45,10 @@ class Graphics extends PortableApplication(1920, 1080) {
   //time
   var time = new Time
   //var elapsedTime: Float = 30
-  var rightKeyPressed = false
-  var leftKeyPressed = false
+  var rightKeyPressed1  = false
+  var leftKeyPressed1 = false
+  var rightKeyPressed2 = false
+  var leftKeyPressed2 = false
   // ArrayBuffer to remove objects
   val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val ballsToRemove: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
@@ -201,14 +203,24 @@ class Graphics extends PortableApplication(1920, 1080) {
         }
 
         //moves player
-        if (rightKeyPressed) {
+        if (rightKeyPressed1) {
           if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
             playerList(0).POSX += 7
           }
         }
-        else if (leftKeyPressed) {
+        else if (leftKeyPressed1) {
           if (playerList(0).POSX > 0) {
             playerList(0).POSX -= 7
+          }
+        }
+        if (rightKeyPressed2) {
+          if (playerList(1).POSX < getWindowWidth - playerList(1).SPRITE_WIDTH) {
+            playerList(1).POSX += 7
+          }
+        }
+        else if (leftKeyPressed2) {
+          if (playerList(1).POSX > 0) {
+            playerList(1).POSX -= 7
           }
         }
 
@@ -323,7 +335,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   override def onKeyUp(keycode: Int): Unit = {
     super.onKeyUp(keycode)
-    if (levelPlaying && gameState == 1) {
+    if (levelPlaying) {
       keycode match {
         case Input.Keys.UP =>
           if (roapList(0) == null) {
@@ -332,20 +344,20 @@ class Graphics extends PortableApplication(1920, 1080) {
           }
         case Input.Keys.RIGHT =>
           playerList(0).textureY = 2
-          rightKeyPressed = false
+          rightKeyPressed1 = false
           if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
           }
         case Input.Keys.LEFT =>
           playerList(0).textureY = 1
-          leftKeyPressed = false
+          leftKeyPressed1 = false
           if (playerList(0).POSX > 0) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
           }
         case Input.Keys.A =>
           if (players == 2) {
             playerList(1).textureY = 1
-            leftKeyPressed = false
+            leftKeyPressed2 = false
             if (playerList(1).POSX > 0) {
               playerList(1).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
             }
@@ -361,9 +373,9 @@ class Graphics extends PortableApplication(1920, 1080) {
         case Input.Keys.D =>
           if (players == 2) {
             playerList(1).textureY = 2
-            rightKeyPressed = false
+            rightKeyPressed2 = false
             if (playerList(1).POSX < getWindowWidth - playerList(1).SPRITE_WIDTH) {
-              playerList(0).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
+              playerList(1).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
             }
           }
 
@@ -371,6 +383,7 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
     }
   }
+
 
   override def onClick(x: Int, y: Int, button: Int): Unit = {
     super.onClick(x, y, button)
@@ -411,15 +424,39 @@ class Graphics extends PortableApplication(1920, 1080) {
       keycode match {
         case Input.Keys.RIGHT =>
           playerList(0).textureY = 2
-          rightKeyPressed = true
+          rightKeyPressed1 = true
           if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
           }
         case Input.Keys.LEFT =>
           playerList(0).textureY = 1
-          leftKeyPressed = true
+          leftKeyPressed1 = true
           if (playerList(0).POSX > 0) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
+          }
+        case Input.Keys.A =>
+          if (players == 2) {
+            playerList(1).textureY = 1
+            leftKeyPressed2 = true
+            if (playerList(1).POSX > 0) {
+              playerList(1).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
+            }
+          }
+        case Input.Keys.S =>
+          if (players == 2) {
+            if (roapList(1) == null) {
+              roapList(1) = new Roap("Bullet", MyPoint2D(playerList(1).POSX + (playerList(1).SPRITE_WIDTH / 2), playerList(1).POSY))
+
+            }
+
+          }
+        case Input.Keys.D =>
+          if (players == 2) {
+            playerList(1).textureY = 2
+            rightKeyPressed2 = true
+            if (playerList(1).POSX < getWindowWidth - playerList(1).SPRITE_WIDTH) {
+              playerList(1).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
+            }
           }
 
         case _ => playerList(0).textureY = 0
@@ -427,6 +464,8 @@ class Graphics extends PortableApplication(1920, 1080) {
     }
 
   }
+
+
 
   def destroyBall(ball: Ball): Unit = {
     world.destroyBody(ball.getBody)
