@@ -9,8 +9,13 @@ class Levels extends DrawableObject{
   var balls = 0
   var size = 0
 
-  var position1 = new Vector2(300, 800)
-  var position2 = new Vector2(1620, 800)
+  val randx1: scala.util.Random = scala.util.Random
+  val randy1: scala.util.Random = scala.util.Random
+  val randx2: scala.util.Random = scala.util.Random
+  val randy2: scala.util.Random = scala.util.Random
+   var position1 = new Vector2(randx1.between(200,1700), randy1.between(700,1000))
+   var  position2 = new Vector2(randx2.between(1000,1700),randy2.between(700,1000))
+
 
   override def draw(gdxGraphics: GdxGraphics): Unit = ???
 
