@@ -257,7 +257,6 @@ class Graphics extends PortableApplication(1920, 1080) {
           for (roap <- roapList) {
             if (roap != null) {
               if (b.checkCollisionWithBullet(roap)) {
-                time.addTime(time.elapsedTime)
                 roapList(roapList.indexOf(roap)) = null
                 b.destroy()
                 if (b.radius == 16) {
