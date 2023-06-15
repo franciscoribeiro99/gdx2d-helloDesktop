@@ -23,7 +23,7 @@ class Graphics extends PortableApplication(1920, 1080) {
   var whereplaying = false
 
   var players = 0
- //BONUS
+  //BONUS
   var bonus = false
   var getballx = 0f
   var getbally = 0f
@@ -45,10 +45,8 @@ class Graphics extends PortableApplication(1920, 1080) {
   //time
   var time = new Time
   //var elapsedTime: Float = 30
-  var rightKeyPressed1 = false
-  var leftKeyPressed1 = false
-  var rightKeyPressed2 = false
-  var leftKeyPressed2 = false
+  var rightKeyPressed = false
+  var leftKeyPressed = false
   // ArrayBuffer to remove objects
   val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val ballsToRemove: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
@@ -84,20 +82,17 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   def createPlayers(): Unit = {
     if (players == 2) {
-      playerList += new Player(960)
-      playerList += new Player(1440)
+      playerList.insert(0, new Player(960))
+      playerList.insert(1, new Player(1440))
     }
     else {
-      playerList += new Player(960)
-
+      playerList.insert(0, new Player(960))
     }
-
   }
 
   override def onInit(): Unit = {
     setTitle("BubbleTrouble")
     initializeGameState()
-
 
     //allButtons
     restart = new ClickableButton("Restart", new BitmapImage("data/images/buttons/Restart.png"), getWindowWidth / 2, 3 * (getWindowHeight / 4))
@@ -112,16 +107,25 @@ class Graphics extends PortableApplication(1920, 1080) {
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
+    println(s"the level is ${levelManager.level} and there is $players players")
+    println(gameState)
     gameState match {
-      case 3 => //lost
-        time.elapsedTime = 30
+      case 2 => //finishGame
+        println("finishgame")
+      case 3 =>
         val img = new BitmapImage("data/images/backgroundfin.jpg")
         g.drawBackground(img, 0, 0)
         exitButton.draw(g)
         restart.draw(g)
         whereplaying = false
-        for (ball <- ballList) {
-          destroyBall(ball)
+        playerList(0) = null
+        if (players == 2)
+          playerList(1) = null
+        if (!ballList.isEmpty) {
+          for (ball <- ballList) {
+            destroyBall(ball)
+          }
+          ballList.clear()
         }
       case 4 =>
         for (ball <- ballList) {
@@ -134,6 +138,8 @@ class Graphics extends PortableApplication(1920, 1080) {
         nextLevel.draw(g)
         whereplaying = false
       case 0 => //lobby
+        if (whereplaying == false)
+          time.elapsedTime = 30
         g.clear()
         g.drawBackground(initialBackground, 0, 0)
         buttonsList.addOne(player1)
@@ -149,43 +155,31 @@ class Graphics extends PortableApplication(1920, 1080) {
         g.drawFPS()
         g.drawSchoolLogo()
 
-        if (!whereplaying) {
+        if (whereplaying == false) {
           createPlayers()
           whereplaying = true
+          if (players == 2) {
+            playerList(0).ss = new Spritesheet("data/images/lumberjack_sheet.png", playerList(0).SPRITE_WIDTH, playerList(0).SPRITE_HEIGHT)
+            playerList(0).draw(g)
+            playerList(1).ss = new Spritesheet("data/images/lumberjack_sheet1.png", playerList(1).SPRITE_WIDTH, playerList(1).SPRITE_HEIGHT)
+            playerList(1).draw(g)
+          }
+          else {
+            playerList(0).ss = new Spritesheet("data/images/lumberjack_sheet.png", playerList(0).SPRITE_WIDTH, playerList(0).SPRITE_HEIGHT)
+            playerList(0).draw(g)
+          }
         }
 
+        // draw players
         if (players == 2) {
-          playerList(0).ss = new Spritesheet("data/images/lumberjack_sheet.png", playerList(0).SPRITE_WIDTH, playerList(0).SPRITE_HEIGHT)
           playerList(0).draw(g)
-          playerList(1).ss = new Spritesheet("data/images/lumberjack_sheet1.png", playerList(1).SPRITE_WIDTH, playerList(1).SPRITE_HEIGHT)
           playerList(1).draw(g)
         }
         else {
-          playerList(0).ss = new Spritesheet("data/images/lumberjack_sheet.png", playerList(0).SPRITE_WIDTH, playerList(0).SPRITE_HEIGHT)
           playerList(0).draw(g)
         }
 
-        //moves player
-        if (rightKeyPressed1) {
-          if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
-            playerList(0).POSX += 7
-          }
-        }
-        else if (leftKeyPressed1) {
-          if (playerList(0).POSX > 0) {
-            playerList(0).POSX -= 7
-          }
-        }
-        if (rightKeyPressed2) {
-          if (playerList(1).POSX < getWindowWidth - playerList(1).SPRITE_WIDTH) {
-            playerList(1).POSX += 7
-          }
-        }
-        else if (leftKeyPressed2) {
-          if (playerList(1).POSX > 0) {
-            playerList(1).POSX -= 7
-          }
-        }
+
         // calculate time
         time.elapsedTime -= Gdx.graphics.getDeltaTime
         //draw time
@@ -206,13 +200,23 @@ class Graphics extends PortableApplication(1920, 1080) {
           }
         }
 
+        //moves player
+        if (rightKeyPressed) {
+          if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
+            playerList(0).POSX += 7
+          }
+        }
+        else if (leftKeyPressed) {
+          if (playerList(0).POSX > 0) {
+            playerList(0).POSX -= 7
+          }
+        }
 
         for (b <- ballList) {
           b.draw(g)
           b.enableCollisionListener()
           if (b.checkCollisioWithPlayer(playerList(0)))
             start = true
-
           if (players == 2) {
             if (b.checkCollisioWithPlayer(playerList(1)))
               start = true
@@ -224,11 +228,11 @@ class Graphics extends PortableApplication(1920, 1080) {
                 roapList(roapList.indexOf(roap)) = null
                 b.destroy()
                 if (b.radius == 16) {
-                    if (ballList.length > 1)
-                      bonus = true
-                    getballx = b.position.x
-                    getbally = b.position.y
-                    ballsToRemove += b
+                  if (ballList.length > 1)
+                    bonus = true
+                  getballx = b.position.x
+                  getbally = b.position.y
+                  ballsToRemove += b
                   ballsToRemove += b
                 }
                 else {
@@ -293,7 +297,7 @@ class Graphics extends PortableApplication(1920, 1080) {
           g.drawBackground(img, 10f, 10f)
         }
     }
-    if (bonus) {
+    if (bonus && gameState == 1) {
       if (getbally >= 15)
         getbally = getbally - 2
       val b1 = new BonusTime(getballx, getbally)
@@ -319,7 +323,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   override def onKeyUp(keycode: Int): Unit = {
     super.onKeyUp(keycode)
-    if (levelPlaying) {
+    if (levelPlaying && gameState == 1) {
       keycode match {
         case Input.Keys.UP =>
           if (roapList(0) == null) {
@@ -328,20 +332,20 @@ class Graphics extends PortableApplication(1920, 1080) {
           }
         case Input.Keys.RIGHT =>
           playerList(0).textureY = 2
-          rightKeyPressed1 = false
+          rightKeyPressed = false
           if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
           }
         case Input.Keys.LEFT =>
           playerList(0).textureY = 1
-          leftKeyPressed1 = false
+          leftKeyPressed = false
           if (playerList(0).POSX > 0) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
           }
         case Input.Keys.A =>
           if (players == 2) {
             playerList(1).textureY = 1
-            leftKeyPressed2 = false
+            leftKeyPressed = false
             if (playerList(1).POSX > 0) {
               playerList(1).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
             }
@@ -357,9 +361,9 @@ class Graphics extends PortableApplication(1920, 1080) {
         case Input.Keys.D =>
           if (players == 2) {
             playerList(1).textureY = 2
-            rightKeyPressed2 = false
+            rightKeyPressed = false
             if (playerList(1).POSX < getWindowWidth - playerList(1).SPRITE_WIDTH) {
-              playerList(1).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
+              playerList(0).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
             }
           }
 
@@ -383,10 +387,12 @@ class Graphics extends PortableApplication(1920, 1080) {
       gameState = 1
       buttonsList.clear()
     }
-    else if (restart.click(x, y)) {
+    else if (restart.click(x, y) && gameState == 3) {
       start = !start
+      levelPlaying = false
       gameState = 1
       buttonsList.clear()
+      createPlayers()
     }
     else if (exitButton.click(x, y)) {
       System.exit(-1)
@@ -396,8 +402,6 @@ class Graphics extends PortableApplication(1920, 1080) {
       gameState = 1
       buttonsList.clear()
     }
-
-
   }
 
 
@@ -407,39 +411,15 @@ class Graphics extends PortableApplication(1920, 1080) {
       keycode match {
         case Input.Keys.RIGHT =>
           playerList(0).textureY = 2
-          rightKeyPressed1 = true
+          rightKeyPressed = true
           if (playerList(0).POSX < getWindowWidth - playerList(0).SPRITE_WIDTH) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
           }
         case Input.Keys.LEFT =>
           playerList(0).textureY = 1
-          leftKeyPressed1 = true
+          leftKeyPressed = true
           if (playerList(0).POSX > 0) {
             playerList(0).playerBounds.setPosition(playerList(0).POSX, playerList(0).POSY)
-          }
-        case Input.Keys.A =>
-          if (players == 2) {
-            playerList(1).textureY = 1
-            leftKeyPressed2 = true
-            if (playerList(1).POSX > 0) {
-              playerList(1).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
-            }
-          }
-        case Input.Keys.S =>
-          if (players == 2) {
-            if (roapList(1) == null) {
-              roapList(1) = new Roap("Bullet", MyPoint2D(playerList(1).POSX + (playerList(1).SPRITE_WIDTH / 2), playerList(1).POSY))
-
-            }
-
-          }
-        case Input.Keys.D =>
-          if (players == 2) {
-            playerList(1).textureY = 2
-            rightKeyPressed2 = true
-            if (playerList(1).POSX < getWindowWidth - playerList(1).SPRITE_WIDTH) {
-              playerList(1).playerBounds.setPosition(playerList(1).POSX, playerList(1).POSY)
-            }
           }
 
         case _ => playerList(0).textureY = 0
