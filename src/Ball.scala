@@ -7,8 +7,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.{Circle, Intersector, Vector2}
 
 class Ball(name: String, var position: Vector2, var radius: Int) extends PhysicsCircle(name, position, radius) with DrawableObject {
-  var ballBounds: Circle = null
-  ballBounds = new Circle(position, radius)
+  var ballBounds: Circle = new Circle(position, radius)
   println("new ball")
   var shouldBeDestroyed: Boolean = false
   override def draw(gdxGraphics: GdxGraphics): Unit = {

@@ -44,13 +44,15 @@ class Graphics extends PortableApplication(1920, 1080) {
   //time
   var time = new Time
   //var elapsedTime: Float = 30
-  var rightKeyPressed1  = false
+  var rightKeyPressed1 = false
   var leftKeyPressed1 = false
   var rightKeyPressed2 = false
   var leftKeyPressed2 = false
   // ArrayBuffer to remove objects
   val ballsToAdd: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
   val ballsToRemove: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
+  var leftwall: Wall = _
+  var rightwall: Wall = _
 
 
   // Physics
@@ -62,15 +64,12 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   //backgroiund
   var initialBackground: BitmapImage = _
-  var finBackground : BitmapImage = _
+  var finBackground: BitmapImage = _
 
   def initializeGameState(): Unit = {
     // Initialize game state components
-
     levelManager.levelRst()
     gameState = 0
-
-
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
     dbg = new DebugRenderer()
     bonus = false
@@ -80,7 +79,20 @@ class Graphics extends PortableApplication(1920, 1080) {
     roapList(0) = null
     roapList(1) = null
     println(levelManager.level)
+    initialiseWalls()
     start = false
+  }
+
+  def initialiseWalls(): Unit = {
+    leftwall = new Wall("wallLeft", new Vector2(0, getWindowHeight / 2), 10, getWindowHeight)
+    rightwall = new Wall("wallight", new Vector2(getWindowWidth, getWindowHeight / 2), 10, getWindowHeight)
+  }
+
+  def removeWalls(): Unit = {
+    leftwall.destroy()
+    rightwall.destroy()
+    leftwall = null
+    rightwall = null
   }
 
   def createPlayers(): Unit = {
@@ -117,7 +129,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     println(gameState)
     gameState match {
       case 2 => //finishGame
-        g.drawBackground(finBackground,0,0)
+        g.drawBackground(finBackground, 0, 0)
         exitButton.draw(g)
         restart.draw(g)
         if (!ballList.isEmpty) {
@@ -128,7 +140,7 @@ class Graphics extends PortableApplication(1920, 1080) {
         }
 
         println("finishgame")
-      case 3 =>
+      case 3 =>//perd
         val img = new BitmapImage("data/images/backgroundfin.jpg")
         g.drawBackground(img, 0, 0)
         time.elapsedTime = 30
@@ -149,12 +161,14 @@ class Graphics extends PortableApplication(1920, 1080) {
         for (ball <- ballList) {
           destroyBall(ball)
         }
+
         ballList.clear()
         playerList.clear()
         g.drawBackground(initialBackground, 0, 0)
         exitButton.draw(g)
         nextLevel.draw(g)
         whereplaying = false
+        time.elapsedTime = 30
       case 0 => //lobby
         time.elapsedTime = 30
         g.clear()
@@ -175,6 +189,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
         if (whereplaying == false) {
           createPlayers()
+          initialiseWalls()
           whereplaying = true
           if (players == 2) {
             playerList(0).ss = new Spritesheet("data/images/lumberjack_sheet.png", playerList(0).SPRITE_WIDTH, playerList(0).SPRITE_HEIGHT)
@@ -187,6 +202,7 @@ class Graphics extends PortableApplication(1920, 1080) {
             playerList(0).draw(g)
           }
         }
+
 
         // draw players
         if (players == 2) {
@@ -203,6 +219,16 @@ class Graphics extends PortableApplication(1920, 1080) {
         //draw time
         g.drawString(60, 1050, s"Time: ${time.elapsedTime.toInt}", Align.right)
         g.drawString(1890, 1050, s"Level: ${levelManager.level}/6", Align.right)
+
+
+        //murs
+        if (time.elapsedTime < 28) {
+          leftwall.updateBox(+0.005f)
+          rightwall.updateBox(-0.005f)
+          rightwall.draw(g)
+          leftwall.draw(g)
+        }
+
 
         //check balls
         if (levelManager.level != 0 && levelPlaying == false) {
@@ -351,7 +377,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   override def onKeyUp(keycode: Int): Unit = {
     super.onKeyUp(keycode)
-    if (gameState ==1 && levelPlaying) {
+    if (gameState == 1 && levelPlaying) {
       keycode match {
         case Input.Keys.UP =>
           if (roapList(0) == null) {
@@ -420,20 +446,28 @@ class Graphics extends PortableApplication(1920, 1080) {
       new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
       dbg = new DebugRenderer()
       start = !start
+      if (leftwall != null && rightwall != null) {
+        println("siuuu")
+        removeWalls()
+      }
       levelPlaying = false
-      bonus=false
+      bonus = false
       gameState = 1
       roapList(0) = null
-      if(players==2)
-       roapList(1) = null
+      if (players == 2)
+        roapList(1) = null
       buttonsList.clear()
       createPlayers()
 
     }
-    else if(restart.click(x,y) && gameState == 2){
+    else if (restart.click(x, y) && gameState == 2) {
       new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
       dbg = new DebugRenderer()
       levelManager.levelRst()
+      if (leftwall != null && rightwall != null) {
+        println("siuuu")
+        removeWalls()
+      }
 
       start = false
       levelPlaying = false
@@ -453,6 +487,10 @@ class Graphics extends PortableApplication(1920, 1080) {
       System.exit(-1)
     }
     else if (nextLevel.click(x, y)) {
+      if (leftwall != null && rightwall != null) {
+        println("siuuu")
+        removeWalls()
+      }
       levelManager.levelUp()
       gameState = 1
       buttonsList.clear()
@@ -506,7 +544,6 @@ class Graphics extends PortableApplication(1920, 1080) {
     }
 
   }
-
 
 
   def destroyBall(ball: Ball): Unit = {
