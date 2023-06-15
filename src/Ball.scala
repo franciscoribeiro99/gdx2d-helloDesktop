@@ -37,7 +37,7 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
   }
 
   def checkCollisionWithBullet(bullet: Roap): Boolean = {
-    println("collision with bullet")
+    //\println("collision with bullet")
     shouldBeDestroyed = Intersector.overlaps(ballBounds, bullet.bulletBounds)
     shouldBeDestroyed
   }

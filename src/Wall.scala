@@ -9,7 +9,7 @@ class Wall(name: String, position: Vector2, var width: Float, height: Float) ext
   var boundaryBox = new Rectangle(position.x, position.y, width, height)
 
   def updateBox(howMuch: Float): Unit = {
-    println(s"position en x ${getBody.getPosition.x}et en y ${getBody.getPosition.y}")
+    //println(s"position en x ${getBody.getPosition.x}et en y ${getBody.getPosition.y}")
     getBody.setTransform(new Vector2(getBody.getPosition.x + howMuch, getBody.getPosition.y), 0.0f)
     if (howMuch > 0.0f)
       boundaryBox.setWidth(boundaryBox.getWidth + howMuch)

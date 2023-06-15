@@ -24,7 +24,8 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   var players = 0
   //BONUS
-  var bonus = false
+  var rand : scala.util.Random = scala.util.Random
+  var bonus :Int=0
   var getballx = 0f
   var getbally = 0f
 
@@ -72,7 +73,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     gameState = 0
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
     dbg = new DebugRenderer()
-    bonus = false
+    bonus = 0
     ballList.clear()
     ballsToAdd.clear()
     ballsToRemove.clear()
@@ -84,8 +85,8 @@ class Graphics extends PortableApplication(1920, 1080) {
   }
 
   def initialiseWalls(): Unit = {
-    leftwall = new Wall("wallLeft", new Vector2(0, getWindowHeight / 2), 10, getWindowHeight)
-    rightwall = new Wall("wallight", new Vector2(getWindowWidth, getWindowHeight / 2), 10, getWindowHeight)
+    leftwall = new Wall("wallLeft", new Vector2(0, getWindowHeight / 2), 0, getWindowHeight)
+    rightwall = new Wall("wallight", new Vector2(getWindowWidth, getWindowHeight / 2), 0, getWindowHeight)
   }
 
   def removeWalls(): Unit = {
@@ -124,11 +125,12 @@ class Graphics extends PortableApplication(1920, 1080) {
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
-    println(s"ball siye is: ${levelManager.size} and level is ${levelManager.level}")
+    //println(s"ball siye is: ${levelManager.size} and level is ${levelManager.level}")
     //println(s"the level is ${levelManager.level} and there is $players players")
-    println(gameState)
+    //println(gameState)
     gameState match {
       case 2 => //finishGame
+        bonus =0
         g.drawBackground(finBackground, 0, 0)
         exitButton.draw(g)
         restart.draw(g)
@@ -140,11 +142,12 @@ class Graphics extends PortableApplication(1920, 1080) {
         }
 
         println("finishgame")
-      case 3 =>//perd
+      case 3 => //perd
         val img = new BitmapImage("data/images/backgroundfin.jpg")
         g.drawBackground(img, 0, 0)
         time.elapsedTime = 30
         exitButton.draw(g)
+        bonus = 0
         restart.draw(g)
         whereplaying = false
         playerList(0) = null
@@ -161,7 +164,7 @@ class Graphics extends PortableApplication(1920, 1080) {
         for (ball <- ballList) {
           destroyBall(ball)
         }
-
+        bonus = 0
         ballList.clear()
         playerList.clear()
         g.drawBackground(initialBackground, 0, 0)
@@ -180,7 +183,7 @@ class Graphics extends PortableApplication(1920, 1080) {
         for (b <- buttonsList) {
           b.draw(g)
         }
-        bonus = false
+        bonus = 0
       case 1 => //playing
         buttonsList.clear()
         g.clear()
@@ -222,12 +225,6 @@ class Graphics extends PortableApplication(1920, 1080) {
 
 
         //murs
-        if (time.elapsedTime < 28) {
-          leftwall.updateBox(+0.005f)
-          rightwall.updateBox(-0.005f)
-          rightwall.draw(g)
-          leftwall.draw(g)
-        }
 
 
         //check balls
@@ -279,18 +276,27 @@ class Graphics extends PortableApplication(1920, 1080) {
             if (roap != null) {
               if (b.checkCollisionWithBullet(roap)) {
                 roapList(roapList.indexOf(roap)) = null
-                b.destroy()
+
                 if (b.radius == 16) {
-                  if (ballList.length > 1)
-                    bonus = true
-                  getballx = b.position.x
-                  getbally = b.position.y
+                  if (ballList.length > 1) {
+                    bonus = rand.between(1,3)
+                    print("bonus : ")
+                    println(bonus)
+
+                  }
+                  println("b position " + b.position.x + " " + b.position.y)
+                  getballx = b.getBodyPosition.x
+                  getbally = b.getBodyPosition.y
                   ballsToRemove += b
                   ballsToRemove += b
+                  b.destroy()
                 }
                 else {
                   val ball1 = new Ball("Ball", new Vector2(b.ballBounds.x + 10, b.ballBounds.y), b.radius / 2)
                   val ball2 = new Ball("Ball", new Vector2(b.ballBounds.x - 10, b.ballBounds.y), b.radius / 2)
+
+                  println(s"positions of small balls : ${b.ballBounds.x + 10} and  ${b.ballBounds.x - 10}")
+                  println(s"position of previous big ball : ${b.position.x + 10} and  ${b.position.x - 10}")
 
                   // Calcul late velocities for the new balls
                   val angle1 = b.getBodyAngle + 45
@@ -301,6 +307,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
                   ball1.setBodyLinearVelocity(velocity1)
                   ball2.setBodyLinearVelocity(velocity2)
+                  b.destroy()
 
                   ballsToAdd += ball1
                   ballsToAdd += ball2
@@ -313,6 +320,7 @@ class Graphics extends PortableApplication(1920, 1080) {
             }
           }
         }
+
 
 
         if (!ballsToRemove.isEmpty)
@@ -347,31 +355,77 @@ class Graphics extends PortableApplication(1920, 1080) {
         }
 
     }
-    if (bonus && gameState == 1) {
+    if(rightwall.getBodyPosition.x > getballx || leftwall.getBodyPosition.x < getballx)
+    if (bonus == 1 && gameState == 1) {
       if (getbally >= 15)
         getbally = getbally - 2
+      println("pos is : " + getballx + " " + getbally)
       val b1 = new BonusTime(getballx, getbally)
       if (players == 1) {
         if (!b1.collision(playerList(0)))
           b1.draw(g)
         else {
-          bonus = false
+          bonus = 0
           time.addTime(time.elapsedTime)
         }
       } else if (players == 2) {
-        if (!b1.collision(playerList(0)) || !b1.collision(playerList(0)))
+        if (!b1.collision(playerList(0)) || !b1.collision(playerList(1)))
           b1.draw(g)
         else {
-          bonus = false
+          bonus = 0
           time.addTime(time.elapsedTime)
         }
       }
 
     }
-    if (levelManager.level == 6) {
-      gameState = 2
 
+    if (bonus == 2 && gameState==1) {
+
+      if (getbally >= 15)
+        getbally = getbally - 2
+      println("pos is : " + getballx + " " + getbally)
+      val b2 = new BonusWall(getballx, getbally)
+      if (players == 1) {
+        if (!b2.collision(playerList(0))) {
+          b2.draw(g)
+          leftwall.updateBox(+0.005f)
+          rightwall.updateBox(-0.005f)
+          rightwall.draw(g)
+          leftwall.draw(g)
+        } else {
+          bonus = 0
+          leftwall.updateBox(-0.3000f)
+          rightwall.updateBox(+0.3000f)
+        }
+      } else if (players == 2) {
+        if (!b2.collision(playerList(0)) || !b2.collision(playerList(1))) {
+          b2.draw(g)
+          leftwall.updateBox(+0.005f)
+          rightwall.updateBox(-0.005f)
+          rightwall.draw(g)
+          leftwall.draw(g)
+        } else {
+          bonus = 0
+          leftwall.updateBox(-0.3000f)
+          rightwall.updateBox(+0.3000f)
+          leftwall.draw(g)
+          rightwall.draw(g)
+        }
+      }
     }
+    else if (time.elapsedTime < 28 ) {
+      leftwall.updateBox(+0.005f)
+      rightwall.updateBox(-0.005f)
+      rightwall.draw(g)
+      leftwall.draw(g)
+    }
+
+      if (levelManager.level == 6) {
+        gameState = 2
+
+      }
+
+
   }
 
 
@@ -451,7 +505,7 @@ class Graphics extends PortableApplication(1920, 1080) {
         removeWalls()
       }
       levelPlaying = false
-      bonus = false
+      bonus = 0
       gameState = 1
       roapList(0) = null
       if (players == 2)
@@ -471,7 +525,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
       start = false
       levelPlaying = false
-      bonus = false
+      bonus = 0
       gameState = 1
       roapList(0) = null
       if (players == 2)
