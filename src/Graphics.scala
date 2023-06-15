@@ -34,7 +34,6 @@ class Graphics extends PortableApplication(1920, 1080) {
   var buttonsList = new ArrayBuffer[ClickableButton]()
   var playerList = new ArrayBuffer[Player]()
 
-
   //allButtons
   var exitButton: ClickableButton = _
   var nextLevel: ClickableButton = _
@@ -63,6 +62,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   //backgroiund
   var initialBackground: BitmapImage = _
+  var finBackground : BitmapImage = _
 
   def initializeGameState(): Unit = {
     // Initialize game state components
@@ -73,6 +73,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
     new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
     dbg = new DebugRenderer()
+    bonus = false
     ballList.clear()
     ballsToAdd.clear()
     ballsToRemove.clear()
@@ -105,14 +106,27 @@ class Graphics extends PortableApplication(1920, 1080) {
 
     //background
     initialBackground = new BitmapImage("data/images/brick-wall-background-texture.jpg")
+    finBackground = new BitmapImage("data/images/youwin.png")
+
 
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
-    println(s"the level is ${levelManager.level} and there is $players players")
+    println(s"ball siye is: ${levelManager.size} and level is ${levelManager.level}")
+    //println(s"the level is ${levelManager.level} and there is $players players")
     println(gameState)
     gameState match {
       case 2 => //finishGame
+        g.drawBackground(finBackground,0,0)
+        exitButton.draw(g)
+        restart.draw(g)
+        if (!ballList.isEmpty) {
+          for (ball <- ballList) {
+            destroyBall(ball)
+          }
+          ballList.clear()
+        }
+
         println("finishgame")
       case 3 =>
         val img = new BitmapImage("data/images/backgroundfin.jpg")
@@ -129,6 +143,7 @@ class Graphics extends PortableApplication(1920, 1080) {
           }
           ballList.clear()
         }
+
       case 4 =>
         for (ball <- ballList) {
           destroyBall(ball)
@@ -140,6 +155,11 @@ class Graphics extends PortableApplication(1920, 1080) {
         nextLevel.draw(g)
         whereplaying = false
       case 0 => //lobby
+
+        print("taille ")
+        println(levelManager.size)
+        //levelManager.level = 0
+        //levelManager.balls=
         if (whereplaying == false)
           time.elapsedTime = 30
         g.clear()
@@ -151,6 +171,7 @@ class Graphics extends PortableApplication(1920, 1080) {
         for (b <- buttonsList) {
           b.draw(g)
         }
+        bonus = false
       case 1 => //playing
         buttonsList.clear()
         g.clear()
@@ -304,10 +325,7 @@ class Graphics extends PortableApplication(1920, 1080) {
         else if (gameState == 1 && levelPlaying == false) {
           gameState = 4
         }
-        if (levelManager.level == 7) {
-          val img = new BitmapImage("data/images/youwin.png")
-          g.drawBackground(img, 10f, 10f)
-        }
+
     }
     if (bonus && gameState == 1) {
       if (getbally >= 15)
@@ -330,12 +348,16 @@ class Graphics extends PortableApplication(1920, 1080) {
       }
 
     }
+    if (levelManager.level == 6) {
+      gameState = 2
+
+    }
   }
 
 
   override def onKeyUp(keycode: Int): Unit = {
     super.onKeyUp(keycode)
-    if (levelPlaying) {
+    if (gameState ==1 && levelPlaying) {
       keycode match {
         case Input.Keys.UP =>
           if (roapList(0) == null) {
@@ -401,11 +423,36 @@ class Graphics extends PortableApplication(1920, 1080) {
       buttonsList.clear()
     }
     else if (restart.click(x, y) && gameState == 3) {
+      new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
+      dbg = new DebugRenderer()
       start = !start
       levelPlaying = false
+      bonus=false
       gameState = 1
+      roapList(0) = null
+      if(players==2)
+       roapList(1) = null
       buttonsList.clear()
       createPlayers()
+
+    }
+    else if(restart.click(x,y) && gameState == 2){
+      new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
+      dbg = new DebugRenderer()
+      levelManager.levelRst()
+      start = false
+      levelPlaying = false
+      bonus = false
+      gameState = 1
+      roapList(0) = null
+      if (players == 2)
+        roapList(1) = null
+      buttonsList.clear()
+      //createPlayers()
+      //levelManager.level=0
+      //levelManager.balls=32
+      gameState = 0
+      println("here2")
     }
     else if (exitButton.click(x, y)) {
       System.exit(-1)
@@ -420,7 +467,7 @@ class Graphics extends PortableApplication(1920, 1080) {
 
   override def onKeyDown(keycode: Int): Unit = {
     super.onKeyDown(keycode)
-    if (gameState == 1) {
+    if (gameState == 1 && levelPlaying) {
       keycode match {
         case Input.Keys.RIGHT =>
           playerList(0).textureY = 2
