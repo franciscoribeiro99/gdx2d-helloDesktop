@@ -85,8 +85,8 @@
     }
 
     def initialiseWalls(): Unit = {
-      leftwall = new Wall("wallLeft", new Vector2(0, getWindowHeight / 2), 0, getWindowHeight)
-      rightwall = new Wall("wallright", new Vector2(getWindowWidth, getWindowHeight / 2), 0, getWindowHeight)
+      leftwall = new Wall("wallLeft", new Vector2(0, getWindowHeight / 2), 1, getWindowHeight)
+      rightwall = new Wall("wallright", new Vector2(getWindowWidth, getWindowHeight / 2), 1, getWindowHeight)
     }
 
     def removeWalls(): Unit = {
