@@ -360,7 +360,7 @@ class Graphics extends PortableApplication(1920, 1080) {
         else if (gameState == 1 && levelPlaying == false) {
           gameState = 4
         }
-
+        // bonus
         if (bonus == 1 && gameState == 1) {
           if (getbally >= 15)
             getbally = getbally - 2
