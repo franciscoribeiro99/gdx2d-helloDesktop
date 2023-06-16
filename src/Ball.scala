@@ -10,6 +10,7 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
   var ballBounds: Circle = new Circle(position, radius)
   println("new ball")
   var shouldBeDestroyed: Boolean = false
+
   override def draw(gdxGraphics: GdxGraphics): Unit = {
     var position = getBodyPosition
     var radius: Float = getBodyRadius
@@ -29,7 +30,13 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
     else if (theOtherObject.name == "leftwall") {
       setBodyLinearVelocity(-getBodyLinearVelocity.x, (getBodyLinearVelocity.y))
     }
-    else  if (theOtherObject.name == "rightwall") {
+    else if (theOtherObject.name == "rightwall") {
+      setBodyLinearVelocity(-getBodyLinearVelocity.x, (getBodyLinearVelocity.y))
+    }
+    else if (theOtherObject.name == "wallLeft") {
+      setBodyLinearVelocity(-getBodyLinearVelocity.x, (getBodyLinearVelocity.y))
+    }
+    else if (theOtherObject.name == "wallright") {
       setBodyLinearVelocity(-getBodyLinearVelocity.x, (getBodyLinearVelocity.y))
     }
     else
@@ -47,7 +54,6 @@ class Ball(name: String, var position: Vector2, var radius: Int) extends Physics
     //println("collision with player")
     return Intersector.overlaps(ballBounds, player.playerBounds)
   }
-
 
 
 }
