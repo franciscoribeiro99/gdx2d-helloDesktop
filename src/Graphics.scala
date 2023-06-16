@@ -26,8 +26,8 @@ class Graphics extends PortableApplication(1920, 1080) {
   //BONUS
   var rand: scala.util.Random = scala.util.Random
   var bonus: Int = 0
-  var getballx = 0f
-  var getbally = 0f
+  private var getballx = 0f
+  private var getbally = 0f
 
   // ArrayBuffer of objects
   val ballList: ArrayBuffer[Ball] = ArrayBuffer[Ball]()
@@ -122,16 +122,13 @@ class Graphics extends PortableApplication(1920, 1080) {
 
     //background
     initialBackground = new BitmapImage("data/images/brick-wall-background-texture.jpg")
-    finBackground = new BitmapImage("data/images/youwin.png")
+    finBackground = new BitmapImage("data/images/youwin.jpg")
 
 
 
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
-    //println(s"ball siye is: ${levelManager.size} and level is ${levelManager.level}")
-    //println(s"the level is ${levelManager.level} and there is $players players")
-    //println(gameState)
     gameState match {
       case 2 => //finishGame
         bonus = 0
@@ -144,7 +141,6 @@ class Graphics extends PortableApplication(1920, 1080) {
           }
           ballList.clear()
         }
-        println("finishgame")
       case 3 => //perd
         val img = new BitmapImage("data/images/backgroundfin.jpg")
         g.drawBackground(img, 0, 0)
@@ -237,7 +233,6 @@ class Graphics extends PortableApplication(1920, 1080) {
         //draw time
         g.drawString(60, 1050, s"Time: ${time.elapsedTime.toInt}", Align.right)
         g.drawString(1890, 1050, s"Level: ${levelManager.level}/6", Align.right)
-        //murs
 
 
         //check balls
@@ -388,7 +383,7 @@ class Graphics extends PortableApplication(1920, 1080) {
           }
 
         }
-
+       //bonus
         if (bonus == 2 && gameState == 1) {
 
           if (getbally >= 15)
@@ -425,6 +420,7 @@ class Graphics extends PortableApplication(1920, 1080) {
             }
           }
         }
+          //murs
         else if (time.elapsedTime < 25) {
           if (players == 2) {
             if (playerList(0).checkCollision(leftwall))

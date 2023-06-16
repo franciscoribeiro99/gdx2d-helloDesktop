@@ -29,9 +29,6 @@ class Player(var POSX: Int) extends DrawableObject {
 
 
   def checkCollision(w: Wall): Boolean = {
-    println("I'm checking")
-    if (Intersector.overlaps(w.rectangle, playerBounds))
-      println("There is a collision")
     Intersector.overlaps(w.rectangle, playerBounds)
   }
 
