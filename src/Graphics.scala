@@ -144,6 +144,10 @@
         case 3 => //perd
           val img = new BitmapImage("data/images/backgroundfin.jpg")
           g.drawBackground(img, 0, 0)
+          rightKeyPressed1 = false
+          leftKeyPressed1 = false
+          rightKeyPressed2 = false
+          leftKeyPressed2 = false
           time.elapsedTime = 30
           exitButton.draw(g)
           bonus = 0
@@ -159,7 +163,7 @@
             ballList.clear()
           }
 
-        case 4 =>
+        case 4 => //level up
           for (ball <- ballList) {
             destroyBall(ball)
           }
@@ -221,8 +225,6 @@
           //draw time
           g.drawString(60, 1050, s"Time: ${time.elapsedTime.toInt}", Align.right)
           g.drawString(1890, 1050, s"Level: ${levelManager.level}/6", Align.right)
-
-
           //murs
 
 
@@ -392,19 +394,14 @@
                 bonus = 0
                 leftwall.updateBox(-0.3000f)
                 rightwall.updateBox(+0.3000f)
-                //  rightwall.draw(g)
-                // leftwall.draw(g)
+
               }
             } else if (players == 2) {
               if (!b2.collision(playerList(0)) || !b2.collision(playerList(1))) {
                 b2.draw(g)
                 leftwall.updateBox(+0.005f)
                 rightwall.updateBox(-0.005f)
-                rightwall.draw(
-
-
-
-                  g)
+                rightwall.draw(g)
                 leftwall.draw(g)
               } else {
                 bonus = 0
@@ -415,7 +412,7 @@
               }
             }
           }
-          else if (time.elapsedTime < 28) {
+          else if (time.elapsedTime < 25) {
             leftwall.updateBox(+0.005f)
             rightwall.updateBox(-0.005f)
             rightwall.draw(g)
@@ -502,7 +499,6 @@
         dbg = new DebugRenderer()
         start = !start
         if (leftwall != null && rightwall != null) {
-          println("siuuu")
           removeWalls()
         }
         levelPlaying = false
@@ -519,7 +515,6 @@
         dbg = new DebugRenderer()
         levelManager.levelRst()
         if (leftwall != null && rightwall != null) {
-          println("siuuu")
           removeWalls()
         }
 
@@ -542,7 +537,7 @@
       }
       else if (nextLevel.click(x, y)) {
         if (leftwall != null && rightwall != null) {
-          println("siuuu")
+
           removeWalls()
         }
         levelManager.levelUp()
