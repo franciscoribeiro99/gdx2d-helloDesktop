@@ -42,6 +42,9 @@ class Graphics extends PortableApplication(1920, 1080) {
   var player2: ClickableButton = _
   var restart: ClickableButton = _
 
+
+
+
   //time
   var time = new Time
   //var elapsedTime: Float = 30
@@ -122,6 +125,7 @@ class Graphics extends PortableApplication(1920, 1080) {
     finBackground = new BitmapImage("data/images/youwin.png")
 
 
+
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
@@ -180,6 +184,10 @@ class Graphics extends PortableApplication(1920, 1080) {
         g.clear()
         g.drawBackground(initialBackground, 0, 0)
         buttonsList.addOne(player1)
+        g.drawString(300,700,"1 Player")
+        g.drawPicture(340,750,new BitmapImage("data/images/Touche/Touche 1.png"))
+        g.drawString(500,300,"2 Players")
+        g.drawPicture(540,350, new BitmapImage("data/images/Touche/Touche 2.png"))
         buttonsList.addOne(player2)
         buttonsList.addOne(exitButton)
         whereplaying = false
