@@ -352,7 +352,6 @@
             gameState = 4
           }
 
-          if (rightwall.getBodyPosition.x > getballx || leftwall.getBodyPosition.x < getballx)
             if (bonus == 1 && gameState == 1) {
               if (getbally >= 15)
                 getbally = getbally - 2
@@ -401,7 +400,11 @@
                 b2.draw(g)
                 leftwall.updateBox(+0.005f)
                 rightwall.updateBox(-0.005f)
-                rightwall.draw(g)
+                rightwall.draw(
+
+
+
+                  g)
                 leftwall.draw(g)
               } else {
                 bonus = 0
@@ -510,7 +513,6 @@
           roapList(1) = null
         buttonsList.clear()
         createPlayers()
-
       }
       else if (restart.click(x, y) && gameState == 2) {
         new PhysicsScreenBoundaries(getWindowWidth, getWindowHeight)
